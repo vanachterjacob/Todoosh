@@ -27,13 +27,15 @@
                     "create",
                     "read",
                     "update",
-                    "delete"
+                    "delete",
+                    "reorder"
                 ],
                 "properties": {
                     "id": "Unique timestamp-based identifier",
                     "name": "User-defined list name",
                     "todos": "Array of todo items",
-                    "createdAt": "ISO timestamp"
+                    "createdAt": "ISO timestamp",
+                    "order": "Position in the lists array for drag and drop"
                 }
             },
             "todos": {
@@ -41,19 +43,42 @@
                     "create",
                     "read",
                     "update",
-                    "delete"
+                    "delete",
+                    "reorder"
                 ],
                 "properties": {
                     "id": "Unique timestamp-based identifier",
                     "text": "User-defined todo text",
                     "completed": "Boolean completion status",
-                    "createdAt": "ISO timestamp"
+                    "createdAt": "ISO timestamp",
+                    "order": "Position in the todos array for drag and drop"
                 },
                 "filters": [
                     "all",
                     "active",
                     "completed"
                 ]
+            },
+            "dragAndDrop": {
+                "implementation": "HTML5 Drag and Drop API",
+                "features": [
+                    "Drag and drop todos within a list",
+                    "Drag and drop lists to reorder",
+                    "Visual feedback during drag",
+                    "Smooth animations",
+                    "Touch-friendly handles"
+                ],
+                "persistence": {
+                    "local": "Immediate update in localStorage",
+                    "remote": "Synced to Firebase after reordering",
+                    "offline": "Works without internet connection"
+                },
+                "ui": {
+                    "dragHandle": "Visible on hover",
+                    "dropIndicator": "Highlights drop target",
+                    "animation": "Smooth transition during drag",
+                    "feedback": "Visual cues for drag state"
+                }
             },
             "sync": {
                 "status": [

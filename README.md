@@ -10,6 +10,11 @@ A portable, offline-first todo list manager with Firebase sync support.
 - ✅ Portable (works with file:// protocol)
 - ✅ No build step required
 - ✅ Modern UI with responsive design
+- ✅ Drag and drop reordering
+  - Reorder todos within lists
+  - Reorder lists in sidebar
+  - Smooth animations and visual feedback
+  - Works offline with sync support
 
 ## Getting Started
 
@@ -70,6 +75,11 @@ A portable, offline-first todo list manager with Firebase sync support.
 - Add, edit, and delete todos
 - Mark todos as complete
 - Filter todos by status
+- Drag and drop to reorder:
+  - Hover over items to see drag handle
+  - Click and drag to reorder
+  - Works for both todos and lists
+  - Changes sync automatically
 - Works offline, syncs when online
 - Automatic sync across devices
 
@@ -77,6 +87,7 @@ A portable, offline-first todo list manager with Firebase sync support.
 
 - Built with vanilla JavaScript (no frameworks)
 - Uses Firebase 8.10.1 for file:// protocol support
+- HTML5 Drag and Drop API for reordering
 - Offline-first architecture with localStorage
 - CSS Grid and Flexbox for layout
 - Modern CSS with variables and transitions
@@ -86,7 +97,14 @@ A portable, offline-first todo list manager with Firebase sync support.
 The project uses a class-based architecture with these main components:
 
 - `app.js`: Main application logic
+  - Todo management
+  - List management
+  - Drag and drop handling
+  - Firebase sync
 - `styles.css`: Modern CSS with variables
+  - Responsive layout
+  - Drag and drop animations
+  - Visual feedback
 - `index.html`: Entry point and UI structure
 - `database.rules.json`: Firebase security rules
 - `manifest.json`: PWA support
