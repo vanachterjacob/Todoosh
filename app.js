@@ -50,6 +50,17 @@ class TodoApp {
         this.listInput.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') this.addList();
         });
+
+        // Add drag and drop event listeners
+        this.todoList.addEventListener('dragstart', this.handleDragStart.bind(this));
+        this.todoList.addEventListener('dragend', this.handleDragEnd.bind(this));
+        this.todoList.addEventListener('dragover', this.handleDragOver.bind(this));
+        this.todoList.addEventListener('drop', this.handleDrop.bind(this));
+
+        this.listContainer.addEventListener('dragstart', this.handleDragStart.bind(this));
+        this.listContainer.addEventListener('dragend', this.handleDragEnd.bind(this));
+        this.listContainer.addEventListener('dragover', this.handleDragOver.bind(this));
+        this.listContainer.addEventListener('drop', this.handleDrop.bind(this));
     }
 
     setupFirebaseSync() {
@@ -362,6 +373,108 @@ class TodoApp {
         }
     }
 
+    handleDragStart(e) {
+        if (!e.target.matches('.todo-item, .list-item')) return;
+
+        e.target.classList.add('dragging');
+        e.dataTransfer.effectAllowed = 'move';
+        e.dataTransfer.setData('text/plain', e.target.dataset.id);
+        e.dataTransfer.setData('type', e.target.matches('.todo-item') ? 'todo' : 'list');
+    }
+
+    handleDragEnd(e) {
+        if (!e.target.matches('.todo-item, .list-item')) return;
+
+        e.target.classList.remove('dragging');
+        document.querySelectorAll('.drag-over').forEach(el => {
+            el.classList.remove('drag-over');
+        });
+    }
+
+    handleDragOver(e) {
+        e.preventDefault();
+        const draggable = document.querySelector('.dragging');
+        if (!draggable) return;
+
+        const isOverTodoList = e.target.matches('.todo-item') || e.target.closest('.todo-item');
+        const isOverListItem = e.target.matches('.list-item') || e.target.closest('.list-item');
+
+        if (!isOverTodoList && !isOverListItem) return;
+
+        const targetElement = isOverTodoList ? e.target.closest('.todo-item') : e.target.closest('.list-item');
+        const isDraggingTodo = draggable.matches('.todo-item');
+        const isDraggingList = draggable.matches('.list-item');
+
+        // Only allow dropping todos on todos and lists on lists
+        if ((isDraggingTodo && isOverTodoList) || (isDraggingList && isOverListItem)) {
+            targetElement.classList.add('drag-over');
+        }
+    }
+
+    handleDrop(e) {
+        e.preventDefault();
+        const id = e.dataTransfer.getData('text/plain');
+        const type = e.dataTransfer.getData('type');
+
+        const targetElement = type === 'todo'
+            ? e.target.closest('.todo-item')
+            : e.target.closest('.list-item');
+
+        if (!targetElement) return;
+
+        const targetId = targetElement.dataset.id;
+        if (id === targetId) return;
+
+        if (type === 'todo') {
+            this.reorderTodo(id, targetId);
+        } else {
+            this.reorderList(id, targetId);
+        }
+
+        document.querySelectorAll('.drag-over').forEach(el => {
+            el.classList.remove('drag-over');
+        });
+    }
+
+    reorderTodo(sourceId, targetId) {
+        const currentList = this.getCurrentList();
+        if (!currentList || !Array.isArray(currentList.todos)) return;
+
+        const todos = [...currentList.todos];
+        const sourceIndex = todos.findIndex(todo => todo.id === sourceId);
+        const targetIndex = todos.findIndex(todo => todo.id === targetId);
+
+        if (sourceIndex === -1 || targetIndex === -1) return;
+
+        const [movedTodo] = todos.splice(sourceIndex, 1);
+        todos.splice(targetIndex, 0, movedTodo);
+
+        this.lists = this.lists.map(list => {
+            if (list.id === this.currentListId) {
+                return { ...list, todos };
+            }
+            return list;
+        });
+
+        this.saveToLocalStorage();
+        this.syncToFirebase();
+        this.updateUI();
+    }
+
+    reorderList(sourceId, targetId) {
+        const sourceIndex = this.lists.findIndex(list => list.id === sourceId);
+        const targetIndex = this.lists.findIndex(list => list.id === targetId);
+
+        if (sourceIndex === -1 || targetIndex === -1) return;
+
+        const [movedList] = this.lists.splice(sourceIndex, 1);
+        this.lists.splice(targetIndex, 0, movedList);
+
+        this.saveToLocalStorage();
+        this.syncToFirebase();
+        this.updateUI();
+    }
+
     updateUI() {
         if (!Array.isArray(this.lists)) {
             this.lists = [];
@@ -380,6 +493,12 @@ class TodoApp {
 
             const li = document.createElement('li');
             li.className = `list-item ${list.id === this.currentListId ? 'active' : ''}`;
+            li.draggable = true;
+            li.dataset.id = list.id;
+
+            const dragHandle = document.createElement('span');
+            dragHandle.className = 'drag-handle';
+            dragHandle.textContent = '⋮';
 
             const nameSpan = document.createElement('span');
             nameSpan.textContent = list.name || 'Unnamed List';
@@ -410,6 +529,7 @@ class TodoApp {
             const activeCount = todos.filter(todo => todo && !todo.completed).length;
             todoCount.textContent = `${activeCount}/${todos.length}`;
 
+            li.appendChild(dragHandle);
             li.appendChild(nameSpan);
             li.appendChild(todoCount);
             li.appendChild(editBtn);
@@ -426,6 +546,12 @@ class TodoApp {
 
                 const li = document.createElement('li');
                 li.className = `todo-item ${todo.completed ? 'completed' : ''}`;
+                li.draggable = true;
+                li.dataset.id = todo.id;
+
+                const dragHandle = document.createElement('span');
+                dragHandle.className = 'drag-handle';
+                dragHandle.textContent = '⋮';
 
                 const checkbox = document.createElement('input');
                 checkbox.type = 'checkbox';
@@ -440,6 +566,7 @@ class TodoApp {
                 deleteBtn.textContent = '×';
                 deleteBtn.addEventListener('click', () => this.deleteTodo(todo.id));
 
+                li.appendChild(dragHandle);
                 li.appendChild(checkbox);
                 li.appendChild(span);
                 li.appendChild(deleteBtn);
