@@ -1,0 +1,203 @@
+{
+    "scratchpad": {
+        "enabled": true,
+        "path": "scratchpad.md",
+        "defaultContent": "# Todoosh Scratchpad\n\nUse this space for quick notes and temporary content.\n\n## Quick Notes\n\n- \n\n## Temporary Code\n\n```javascript\n// Your code here\n```"
+    },
+    "general": {
+        "formatOnSave": true,
+        "trimTrailingWhitespace": true,
+        "insertFinalNewline": true,
+        "tabSize": 2,
+        "indentSize": 2
+    },
+    "project": {
+        "name": "Todoosh",
+        "description": "A portable, offline-first todo list manager with Firebase sync",
+        "version": "1.0.0",
+        "requirements": {
+            "portability": "Must work when opened directly from filesystem (file:// protocol)",
+            "offline": "Must work without internet connection",
+            "sync": "Must sync with Firebase when online",
+            "dependencies": "Only Firebase is allowed as external dependency"
+        },
+        "features": {
+            "lists": {
+                "operations": [
+                    "create",
+                    "read",
+                    "update",
+                    "delete"
+                ],
+                "properties": {
+                    "id": "Unique timestamp-based identifier",
+                    "name": "User-defined list name",
+                    "todos": "Array of todo items",
+                    "createdAt": "ISO timestamp"
+                }
+            },
+            "todos": {
+                "operations": [
+                    "create",
+                    "read",
+                    "update",
+                    "delete"
+                ],
+                "properties": {
+                    "id": "Unique timestamp-based identifier",
+                    "text": "User-defined todo text",
+                    "completed": "Boolean completion status",
+                    "createdAt": "ISO timestamp"
+                },
+                "filters": [
+                    "all",
+                    "active",
+                    "completed"
+                ]
+            },
+            "sync": {
+                "status": [
+                    "Online",
+                    "Offline",
+                    "Connecting",
+                    "Permission Denied",
+                    "Sync Error",
+                    "Syncing"
+                ],
+                "storage": {
+                    "local": "localStorage for offline persistence",
+                    "remote": "Firebase Realtime Database",
+                    "sync": "Bidirectional with offline-first priority"
+                }
+            }
+        },
+        "ui": {
+            "layout": {
+                "type": "CSS Grid and Flexbox based",
+                "structure": {
+                    "sidebar": "280px fixed width with responsive collapse",
+                    "main": "Fluid 1fr with max-width 1200px",
+                    "responsive": "Breakpoint at 768px for mobile layout"
+                }
+            },
+            "theme": {
+                "colors": {
+                    "primary": "#4A90E2",
+                    "primary_light": "#6BA4E7",
+                    "primary_dark": "#357ABD",
+                    "text": "#2C3E50",
+                    "text_light": "#7F8C8D",
+                    "background": "#FFFFFF",
+                    "background_light": "#F8FAFC",
+                    "background_dark": "#EDF2F7",
+                    "border": "#E2E8F0",
+                    "success": "#4CAF50",
+                    "danger": "#FF4444"
+                },
+                "spacing": {
+                    "xs": "0.25rem",
+                    "sm": "0.5rem",
+                    "md": "1rem",
+                    "lg": "1.5rem",
+                    "xl": "2rem"
+                },
+                "transitions": {
+                    "quick": "150ms ease",
+                    "normal": "250ms ease"
+                },
+                "shadows": {
+                    "sm": "0 1px 3px rgba(0,0,0,0.1)",
+                    "md": "0 4px 6px rgba(0,0,0,0.1)",
+                    "lg": "0 10px 15px rgba(0,0,0,0.1)"
+                }
+            }
+        },
+        "design_decisions": {
+            "layout": [
+                "Sidebar-based navigation for better organization",
+                "Card-based content areas for visual hierarchy",
+                "Responsive design with mobile-first approach",
+                "CSS Grid for main layout, Flexbox for components"
+            ],
+            "interactions": [
+                "Smooth transitions for all interactive elements",
+                "Hover states with subtle background changes",
+                "Slide-in animations for new todos",
+                "Progressive disclosure for delete buttons",
+                "Immediate feedback for sync status"
+            ],
+            "accessibility": [
+                "High contrast color scheme",
+                "Clear visual hierarchy",
+                "Sufficient spacing for touch targets",
+                "Semantic HTML structure",
+                "Disabled states for unavailable actions"
+            ],
+            "responsive": [
+                "Collapsible sidebar on mobile",
+                "Stack layouts on smaller screens",
+                "Fluid typography and spacing",
+                "Touch-friendly interface adjustments"
+            ]
+        },
+        "firebase": {
+            "version": "8.10.1",
+            "reason": "Using older Firebase version (8.x) instead of 9.x for file:// protocol support",
+            "config": {
+                "location": "firebase-config.js",
+                "setup": "Uses global firebase object instead of ES modules",
+                "database": "Realtime Database in europe-west1 region"
+            },
+            "sync_strategy": {
+                "connection_test": "Uses _connection_test node for permission verification",
+                "offline_first": "Prioritizes localStorage over Firebase",
+                "conflict_resolution": "Last write wins with JSON comparison",
+                "error_handling": "Graceful fallback to offline mode"
+            }
+        },
+        "architecture": {
+            "files": {
+                "index.html": "Main entry point, loads Firebase SDKs and scripts",
+                "styles.css": "Modern CSS with variables and responsive design",
+                "app.js": "Main application logic using class-based architecture",
+                "firebase-config.js": "Firebase initialization and configuration",
+                "manifest.json": "PWA support with relative paths for file:// protocol",
+                "database.rules.json": "Firebase Realtime Database rules"
+            },
+            "data": {
+                "local": "Uses localStorage for offline data persistence",
+                "cloud": "Uses Firebase Realtime Database for cloud sync",
+                "sync": "Bidirectional sync between local and cloud storage",
+                "validation": "Array and object validation throughout the codebase"
+            }
+        },
+        "important_decisions": {
+            "firebase_setup": [
+                "Using global script loading instead of ES modules",
+                "Firebase 8.10.1 instead of 9.x for file:// protocol support",
+                "No module imports/exports to support direct file opening",
+                "Database variable exposed globally",
+                "Connection testing with temporary node"
+            ],
+            "offline_first": [
+                "localStorage as primary data store",
+                "Firebase sync as secondary with conflict resolution",
+                "Service Worker only active on HTTPS",
+                "Sync status indicator in UI",
+                "Graceful offline mode handling"
+            ],
+            "security": [
+                "Permissive Firebase rules for development",
+                "API key restrictions recommended for production",
+                "Database rules should be tightened for production"
+            ],
+            "data_integrity": [
+                "Null checks throughout the codebase",
+                "Array validation before operations",
+                "Default values for missing properties",
+                "Safe property access patterns",
+                "Error handling for all async operations"
+            ]
+        }
+    }
+}

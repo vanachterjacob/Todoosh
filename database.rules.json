@@ -1,0 +1,12 @@
+{
+  "rules": {
+    ".read": true,
+    "lists": {
+      ".write": true,
+      ".validate": true,
+      "$listId": {
+        ".validate": true
+      }
+    }
+  }
+}
