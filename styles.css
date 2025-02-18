@@ -214,12 +214,13 @@ button:hover {
 
 .todo-item {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     padding: var(--spacing-md);
     border-bottom: 1px solid var(--border-color);
     transition: background-color var(--transition-quick);
     animation: slideIn var(--transition-normal);
     user-select: none;
+    gap: var(--spacing-sm);
 }
 
 @keyframes slideIn {
@@ -239,12 +240,14 @@ button:hover {
 }
 
 .todo-item input[type="checkbox"] {
-    margin-right: var(--spacing-md);
     width: 18px;
     height: 18px;
     border-radius: 4px;
     border: 2px solid var(--border-color);
-    transition: border-color var(--transition-quick);
+    transition: all var(--transition-quick);
+    position: relative;
+    cursor: pointer;
+    margin-top: 3px;
 }
 
 .todo-item input[type="checkbox"]:checked {
@@ -258,16 +261,28 @@ button:hover {
 }
 
 .todo-item .delete-btn {
-    margin-left: auto;
-    background: transparent;
-    color: var(--danger-color);
-    padding: var(--spacing-xs);
     opacity: 0;
-    transition: opacity var(--transition-quick);
+    padding: var(--spacing-xs);
+    font-size: 0.9em;
+    background: transparent;
+    color: var(--text-light);
+    transition: all var(--transition-quick);
+    border-radius: 4px;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 1px;
 }
 
 .todo-item:hover .delete-btn {
     opacity: 1;
+}
+
+.todo-item:hover .delete-btn:hover {
+    color: var(--danger-color);
+    background: var(--bg-light);
 }
 
 /* Stats Bar */
@@ -402,23 +417,23 @@ button:hover {
     border-top: 2px solid var(--primary-color);
 }
 
-.todo-item .drag-handle,
-.list-item .drag-handle {
+.todo-item .drag-handle {
     cursor: grab;
     color: var(--text-light);
-    padding: 0 var(--spacing-sm);
+    padding: var(--spacing-xs);
     opacity: 0;
-    transition: opacity var(--transition-quick);
+    transition: all var(--transition-quick);
+    border-radius: 4px;
+    margin-top: 2px;
 }
 
-.todo-item:hover .drag-handle,
-.list-item:hover .drag-handle {
+.todo-item:hover .drag-handle {
+    opacity: 0.5;
+}
+
+.todo-item .drag-handle:hover {
     opacity: 1;
-}
-
-.todo-item.dragging .drag-handle,
-.list-item.dragging .drag-handle {
-    cursor: grabbing;
+    background: var(--bg-light);
 }
 
 /* Responsive Design */
@@ -478,5 +493,218 @@ button:hover {
     .lists-menu {
         max-height: none;
         padding: 0 var(--spacing-md);
+    }
+}
+
+/* Todo Content Styles */
+.todo-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+    min-width: 0;
+    padding-right: var(--spacing-md);
+}
+
+.todo-text {
+    padding: var(--spacing-sm);
+    border-radius: 4px;
+    min-height: 1.5em;
+    outline: none;
+    white-space: pre-wrap;
+    word-break: break-word;
+    transition: all var(--transition-quick);
+}
+
+.todo-text:focus {
+    background: var(--bg-light);
+    box-shadow: var(--shadow-sm);
+    padding: var(--spacing-md);
+}
+
+.todo-text:empty:before {
+    content: 'Enter your todo...';
+    color: var(--text-light);
+}
+
+/* Subtask Styles */
+.subtask-list {
+    display: none;
+    margin: var(--spacing-xs) 0 var(--spacing-xs) var(--spacing-xl);
+    border-left: 2px solid var(--border-color);
+    padding-left: var(--spacing-md);
+    position: relative;
+    transition: all var(--transition-normal);
+}
+
+.subtask-list.expanded {
+    display: block;
+    animation: expandSubtasks var(--transition-normal);
+}
+
+@keyframes expandSubtasks {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.subtask-item {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-xs) var(--spacing-sm);
+    font-size: 0.92em;
+    border-radius: 4px;
+    transition: background-color var(--transition-quick);
+    margin-bottom: var(--spacing-xs);
+}
+
+.subtask-item:hover {
+    background-color: var(--bg-light);
+}
+
+.subtask-text {
+    flex: 1;
+    padding: var(--spacing-xs) var(--spacing-sm);
+    border-radius: 4px;
+    min-height: 1.5em;
+    outline: none;
+    transition: all var(--transition-quick);
+}
+
+.subtask-text:focus {
+    background: var(--bg-light);
+    box-shadow: var(--shadow-sm);
+    padding: var(--spacing-sm);
+}
+
+.subtask-text:empty:before {
+    content: 'Enter subtask...';
+    color: var(--text-light);
+}
+
+.subtask-toggle {
+    background: transparent;
+    border: none;
+    color: var(--text-light);
+    padding: var(--spacing-xs);
+    cursor: pointer;
+    font-size: 0.85em;
+    transition: all var(--transition-quick);
+    width: 24px;
+    height: 24px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: -8px;
+}
+
+.subtask-toggle:hover {
+    color: var(--primary-color);
+    background: var(--bg-light);
+}
+
+.add-subtask-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-light);
+    padding: var(--spacing-xs) var(--spacing-sm);
+    cursor: pointer;
+    font-size: 0.9em;
+    text-align: left;
+    transition: all var(--transition-quick);
+    border-radius: 4px;
+    margin-left: var(--spacing-xl);
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+}
+
+.add-subtask-btn:hover {
+    color: var(--primary-color);
+    background: var(--bg-light);
+}
+
+.add-subtask-btn::before {
+    content: '+';
+    font-size: 1.2em;
+    line-height: 1;
+}
+
+/* Checkbox Optimizations */
+.todo-item input[type="checkbox"],
+.subtask-item input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    border-radius: 4px;
+    border: 2px solid var(--border-color);
+    transition: all var(--transition-quick);
+    position: relative;
+    cursor: pointer;
+    margin-top: 3px;
+}
+
+.todo-item input[type="checkbox"]:checked,
+.subtask-item input[type="checkbox"]:checked {
+    border-color: var(--success-color);
+    background-color: var(--success-color);
+}
+
+.todo-item.completed>.todo-content>.todo-text,
+.subtask-item input[type="checkbox"]:checked+.subtask-text {
+    color: var(--text-light);
+    text-decoration: line-through;
+}
+
+/* Delete Button Optimizations */
+.todo-item .delete-btn,
+.subtask-item .delete-btn {
+    opacity: 0;
+    padding: var(--spacing-xs);
+    font-size: 0.9em;
+    background: transparent;
+    color: var(--text-light);
+    transition: all var(--transition-quick);
+    border-radius: 4px;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 1px;
+}
+
+.todo-item:hover>.delete-btn,
+.subtask-item:hover>.delete-btn {
+    opacity: 1;
+}
+
+.todo-item .delete-btn:hover,
+.subtask-item .delete-btn:hover {
+    color: var(--danger-color);
+    background: var(--bg-light);
+}
+
+/* Mobile Optimizations */
+@media (max-width: 768px) {
+    .todo-content {
+        padding-right: var(--spacing-xs);
+    }
+
+    .subtask-list {
+        margin-left: var(--spacing-lg);
+        padding-left: var(--spacing-sm);
+    }
+
+    .add-subtask-btn {
+        margin-left: var(--spacing-lg);
+        padding: var(--spacing-sm);
     }
 }

@@ -274,7 +274,13 @@ class TodoApp {
                 id: Date.now().toString(),
                 text: text,
                 completed: false,
-                createdAt: new Date().toISOString()
+                createdAt: new Date().toISOString(),
+                richText: {
+                    content: text,
+                    type: 'text'  // Can be 'text', 'multiline', or 'rich'
+                },
+                subtasks: [],
+                expanded: false  // UI state for showing/hiding subtasks
             };
 
             this.lists = this.lists.map(list => {
@@ -540,39 +546,83 @@ class TodoApp {
         // Update todo list
         this.todoList.innerHTML = '';
         const filteredTodos = this.getFilteredTodos();
-        if (Array.isArray(filteredTodos)) {
-            filteredTodos.forEach(todo => {
-                if (!todo || typeof todo !== 'object') return;
+        filteredTodos.forEach(todo => {
+            if (!todo || typeof todo !== 'object') return;
 
-                const li = document.createElement('li');
-                li.className = `todo-item ${todo.completed ? 'completed' : ''}`;
-                li.draggable = true;
-                li.dataset.id = todo.id;
+            const li = document.createElement('li');
+            li.className = `todo-item ${todo.completed ? 'completed' : ''}`;
+            li.draggable = true;
+            li.dataset.id = todo.id;
 
-                const dragHandle = document.createElement('span');
-                dragHandle.className = 'drag-handle';
-                dragHandle.textContent = '⋮';
+            const dragHandle = document.createElement('span');
+            dragHandle.className = 'drag-handle';
+            dragHandle.textContent = '⋮';
 
-                const checkbox = document.createElement('input');
-                checkbox.type = 'checkbox';
-                checkbox.checked = todo.completed;
-                checkbox.addEventListener('change', () => this.toggleTodo(todo.id));
+            const checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.checked = todo.completed;
+            checkbox.addEventListener('change', () => this.toggleTodo(todo.id));
 
-                const span = document.createElement('span');
-                span.textContent = todo.text || '';
+            const contentWrapper = document.createElement('div');
+            contentWrapper.className = 'todo-content';
 
-                const deleteBtn = document.createElement('button');
-                deleteBtn.className = 'delete-btn';
-                deleteBtn.textContent = '×';
-                deleteBtn.addEventListener('click', () => this.deleteTodo(todo.id));
+            const textContent = document.createElement('div');
+            textContent.className = 'todo-text';
+            textContent.contentEditable = 'true';
+            textContent.innerHTML = this.sanitizeHTML(todo.richText?.content || todo.text);
 
-                li.appendChild(dragHandle);
-                li.appendChild(checkbox);
-                li.appendChild(span);
-                li.appendChild(deleteBtn);
-                this.todoList.appendChild(li);
+            // Rich text editing handlers
+            textContent.addEventListener('blur', () => {
+                const newContent = textContent.innerHTML;
+                this.updateTodoContent(todo.id, newContent);
             });
-        }
+
+            textContent.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    textContent.blur();
+                }
+            });
+
+            const subtaskToggle = document.createElement('button');
+            subtaskToggle.className = 'subtask-toggle';
+            subtaskToggle.innerHTML = todo.expanded ? '▼' : '▶';
+            subtaskToggle.addEventListener('click', () => this.toggleSubtasks(todo.id));
+
+            const subtaskList = document.createElement('ul');
+            subtaskList.className = `subtask-list ${todo.expanded ? 'expanded' : ''}`;
+
+            if (Array.isArray(todo.subtasks)) {
+                todo.subtasks.forEach(subtask => {
+                    const subtaskItem = this.createSubtaskElement(subtask, todo.id);
+                    subtaskList.appendChild(subtaskItem);
+                });
+            }
+
+            const addSubtaskBtn = document.createElement('button');
+            addSubtaskBtn.className = 'add-subtask-btn';
+            addSubtaskBtn.textContent = '+ Add subtask';
+            addSubtaskBtn.addEventListener('click', () => this.addSubtask(todo.id));
+
+            contentWrapper.appendChild(textContent);
+            if (todo.subtasks?.length > 0) {
+                contentWrapper.appendChild(subtaskToggle);
+            }
+            contentWrapper.appendChild(subtaskList);
+            contentWrapper.appendChild(addSubtaskBtn);
+
+            const deleteBtn = document.createElement('button');
+            deleteBtn.className = 'delete-btn';
+            deleteBtn.textContent = '×';
+            deleteBtn.addEventListener('click', () => this.deleteTodo(todo.id));
+
+            li.appendChild(dragHandle);
+            li.appendChild(checkbox);
+            li.appendChild(contentWrapper);
+            li.appendChild(deleteBtn);
+
+            this.todoList.appendChild(li);
+        });
 
         // Update counter
         if (currentList) {
@@ -586,6 +636,206 @@ class TodoApp {
         // Update input states
         this.todoInput.disabled = !this.currentListId;
         this.addButton.disabled = !this.currentListId;
+    }
+
+    sanitizeHTML(html) {
+        const div = document.createElement('div');
+        div.textContent = html;
+        return div.innerHTML;
+    }
+
+    updateTodoContent(todoId, newContent) {
+        this.lists = this.lists.map(list => {
+            if (list.id === this.currentListId) {
+                return {
+                    ...list,
+                    todos: list.todos.map(todo => {
+                        if (todo.id === todoId) {
+                            return {
+                                ...todo,
+                                text: this.stripHTML(newContent),
+                                richText: {
+                                    content: newContent,
+                                    type: newContent.includes('<br>') ? 'multiline' : 'text'
+                                }
+                            };
+                        }
+                        return todo;
+                    })
+                };
+            }
+            return list;
+        });
+        this.saveToLocalStorage();
+        this.syncToFirebase();
+    }
+
+    stripHTML(html) {
+        const div = document.createElement('div');
+        div.innerHTML = html;
+        return div.textContent || div.innerText || '';
+    }
+
+    toggleSubtasks(todoId) {
+        this.lists = this.lists.map(list => {
+            if (list.id === this.currentListId) {
+                return {
+                    ...list,
+                    todos: list.todos.map(todo => {
+                        if (todo.id === todoId) {
+                            return { ...todo, expanded: !todo.expanded };
+                        }
+                        return todo;
+                    })
+                };
+            }
+            return list;
+        });
+        this.updateUI();
+    }
+
+    addSubtask(todoId) {
+        const subtask = {
+            id: Date.now().toString(),
+            text: '',
+            completed: false,
+            createdAt: new Date().toISOString()
+        };
+
+        this.lists = this.lists.map(list => {
+            if (list.id === this.currentListId) {
+                return {
+                    ...list,
+                    todos: list.todos.map(todo => {
+                        if (todo.id === todoId) {
+                            return {
+                                ...todo,
+                                subtasks: [...(todo.subtasks || []), subtask],
+                                expanded: true
+                            };
+                        }
+                        return todo;
+                    })
+                };
+            }
+            return list;
+        });
+        this.saveToLocalStorage();
+        this.syncToFirebase();
+        this.updateUI();
+    }
+
+    createSubtaskElement(subtask, parentId) {
+        const li = document.createElement('li');
+        li.className = 'subtask-item';
+        li.dataset.id = subtask.id;
+
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.checked = subtask.completed;
+        checkbox.addEventListener('change', () => this.toggleSubtaskComplete(parentId, subtask.id));
+
+        const textContent = document.createElement('div');
+        textContent.className = 'subtask-text';
+        textContent.contentEditable = 'true';
+        textContent.innerHTML = this.sanitizeHTML(subtask.text);
+
+        textContent.addEventListener('blur', () => {
+            const newContent = textContent.innerHTML;
+            this.updateSubtaskContent(parentId, subtask.id, newContent);
+        });
+
+        const deleteBtn = document.createElement('button');
+        deleteBtn.className = 'delete-btn';
+        deleteBtn.textContent = '×';
+        deleteBtn.addEventListener('click', () => this.deleteSubtask(parentId, subtask.id));
+
+        li.appendChild(checkbox);
+        li.appendChild(textContent);
+        li.appendChild(deleteBtn);
+
+        return li;
+    }
+
+    toggleSubtaskComplete(todoId, subtaskId) {
+        this.lists = this.lists.map(list => {
+            if (list.id === this.currentListId) {
+                return {
+                    ...list,
+                    todos: list.todos.map(todo => {
+                        if (todo.id === todoId) {
+                            return {
+                                ...todo,
+                                subtasks: todo.subtasks.map(subtask => {
+                                    if (subtask.id === subtaskId) {
+                                        return { ...subtask, completed: !subtask.completed };
+                                    }
+                                    return subtask;
+                                })
+                            };
+                        }
+                        return todo;
+                    })
+                };
+            }
+            return list;
+        });
+        this.saveToLocalStorage();
+        this.syncToFirebase();
+        this.updateUI();
+    }
+
+    updateSubtaskContent(todoId, subtaskId, newContent) {
+        this.lists = this.lists.map(list => {
+            if (list.id === this.currentListId) {
+                return {
+                    ...list,
+                    todos: list.todos.map(todo => {
+                        if (todo.id === todoId) {
+                            return {
+                                ...todo,
+                                subtasks: todo.subtasks.map(subtask => {
+                                    if (subtask.id === subtaskId) {
+                                        return {
+                                            ...subtask,
+                                            text: this.stripHTML(newContent)
+                                        };
+                                    }
+                                    return subtask;
+                                })
+                            };
+                        }
+                        return todo;
+                    })
+                };
+            }
+            return list;
+        });
+        this.saveToLocalStorage();
+        this.syncToFirebase();
+    }
+
+    deleteSubtask(todoId, subtaskId) {
+        this.lists = this.lists.map(list => {
+            if (list.id === this.currentListId) {
+                return {
+                    ...list,
+                    todos: list.todos.map(todo => {
+                        if (todo.id === todoId) {
+                            return {
+                                ...todo,
+                                subtasks: todo.subtasks.filter(subtask => subtask.id !== subtaskId)
+                            };
+                        }
+                        return todo;
+                    })
+                };
+            }
+            return list;
+        });
+        this.saveToLocalStorage();
+        this.syncToFirebase();
+        this.updateUI();
     }
 }
 
