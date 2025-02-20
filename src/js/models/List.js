@@ -44,6 +44,14 @@ class List {
         });
     }
 
+    editTodo(todoId, newText) {
+        const todo = this.todos.find(todo => todo.id === todoId);
+        if (todo) {
+            todo.text = newText.trim();
+        }
+        return todo;
+    }
+
     toJSON() {
         return {
             id: this.id,

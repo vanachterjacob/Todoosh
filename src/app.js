@@ -173,6 +173,16 @@ class TodoApp {
         }
     }
 
+    editTodo(todoId, newText) {
+        const currentList = this.lists.find(list => list.id === this.currentListId);
+        if (currentList && newText.trim()) {
+            currentList.editTodo(todoId, newText);
+            this.saveToLocalStorage();
+            this.firebaseService.uploadData(this.lists);
+            this.updateUI();
+        }
+    }
+
     clearCompleted() {
         const currentList = this.lists.find(list => list.id === this.currentListId);
         if (currentList) {
@@ -269,10 +279,52 @@ class TodoApp {
                 todoElement.innerHTML = `
                     <input type="checkbox" class="todo-item__checkbox" ${todo.completed ? 'checked' : ''}>
                     <span class="todo-item__text">${todo.text}</span>
+                    <input type="text" class="todo-item__edit" value="${todo.text}">
+                    <div class="todo-item__actions">
+                        <button class="todo-item__action todo-item__action--edit" title="Edit"></button>
+                        <button class="todo-item__action todo-item__action--delete" title="Delete"></button>
+                    </div>
                 `;
+
+                // Checkbox event
                 todoElement.querySelector('.todo-item__checkbox').addEventListener('change', () => {
                     this.toggleTodo(todo.id);
                 });
+
+                // Edit button event
+                todoElement.querySelector('.todo-item__action--edit').addEventListener('click', () => {
+                    todoElement.classList.add('todo-item--editing');
+                    const editInput = todoElement.querySelector('.todo-item__edit');
+                    editInput.focus();
+                });
+
+                // Edit input events
+                const editInput = todoElement.querySelector('.todo-item__edit');
+                editInput.addEventListener('blur', () => {
+                    todoElement.classList.remove('todo-item--editing');
+                    this.editTodo(todo.id, editInput.value);
+                });
+                editInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        todoElement.classList.remove('todo-item--editing');
+                        this.editTodo(todo.id, editInput.value);
+                    }
+                });
+                editInput.addEventListener('keyup', (e) => {
+                    if (e.key === 'Escape') {
+                        todoElement.classList.remove('todo-item--editing');
+                        editInput.value = todo.text;
+                    }
+                });
+
+                // Delete button event
+                todoElement.querySelector('.todo-item__action--delete').addEventListener('click', () => {
+                    currentList.removeTodo(todo.id);
+                    this.saveToLocalStorage();
+                    this.firebaseService.uploadData(this.lists);
+                    this.updateUI();
+                });
+
                 this.todoList.appendChild(todoElement);
             });
     }
