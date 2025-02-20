@@ -3,6 +3,7 @@ class TodoApp {
         this.lists = [];
         this.currentListId = null;
         this.filter = 'all';
+        console.log('TodoApp: Initializing...');
 
         // First, set up DOM elements
         this.setupDOMElements();
@@ -17,9 +18,36 @@ class TodoApp {
         this.setupServices();
         this.setupEventListeners();
 
-        // Load initial data
-        this.loadFromLocalStorage();
-        this.updateUI();
+        // Load data with proper initialization sequence
+        this.initializeData();
+    }
+
+    async initializeData() {
+        console.log('TodoApp: Starting data initialization');
+
+        try {
+            // Initialize Firebase and wait for connection
+            console.log('TodoApp: Waiting for Firebase connection...');
+            await this.firebaseService.init();
+
+            // Now that we're connected, start sync
+            console.log('TodoApp: Firebase connected, starting sync');
+            this.firebaseService.startSync([]);
+
+            // Load from localStorage only if Firebase data is empty
+            console.log('TodoApp: Loading from localStorage as fallback');
+            if (this.lists.length === 0) {
+                this.loadFromLocalStorage();
+            }
+
+            // Update UI
+            console.log('TodoApp: Updating UI');
+            this.updateUI();
+        } catch (error) {
+            console.error('TodoApp: Failed to initialize Firebase, falling back to localStorage', error);
+            this.loadFromLocalStorage();
+            this.updateUI();
+        }
     }
 
     setupServices() {
@@ -35,9 +63,6 @@ class TodoApp {
             this.saveToLocalStorage();
             this.updateUI();
         };
-
-        // Initialize Firebase after setting up handlers
-        this.firebaseService.init();
 
         // Drag and drop setup
         this.dragDropService.onDrop = (draggedId, targetId, newIndex, type) => {
