@@ -253,6 +253,26 @@ class TodoApp {
         }
     }
 
+    editList(listId, newName) {
+        const list = this.lists.find(list => list.id === listId);
+        if (list && newName.trim()) {
+            list.editName(newName);
+            this.saveToLocalStorage();
+            this.firebaseService.uploadData(this.lists);
+            this.updateUI();
+        }
+    }
+
+    deleteList(listId) {
+        this.lists = this.lists.filter(list => list.id !== listId);
+        if (this.currentListId === listId) {
+            this.currentListId = this.lists.length > 0 ? this.lists[0].id : null;
+        }
+        this.saveToLocalStorage();
+        this.firebaseService.uploadData(this.lists);
+        this.updateUI();
+    }
+
     updateUI() {
         this.renderLists();
         this.renderTodos();
@@ -270,13 +290,72 @@ class TodoApp {
                 listElement.dataset.id = list.id;
                 listElement.dataset.type = 'list';
                 listElement.innerHTML = `
-                    <span class="list-item__name">${list.name}</span>
-                    <span class="list-item__count">${list.todos.length}</span>
+                    <div class="list-item__content">
+                        <span class="list-item__name">${list.name}</span>
+                        <span class="list-item__count">${list.todos.length}</span>
+                    </div>
+                    <input type="text" class="list-item__edit" value="${list.name}" placeholder="List name">
+                    <div class="list-item__actions">
+                        <button class="list-item__action list-item__action--edit" title="Rename list"></button>
+                        <button class="list-item__action list-item__action--delete" title="Delete list"></button>
+                    </div>
                 `;
-                listElement.addEventListener('click', () => {
-                    this.currentListId = list.id;
-                    this.updateUI();
+
+                // Click event for selecting list
+                listElement.addEventListener('click', (e) => {
+                    // Don't trigger if clicking on actions or edit input
+                    if (!e.target.closest('.list-item__actions') && !e.target.closest('.list-item__edit')) {
+                        this.currentListId = list.id;
+                        this.updateUI();
+                    }
                 });
+
+                // Edit button event
+                listElement.querySelector('.list-item__action--edit').addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    listElement.classList.add('list-item--editing');
+                    const editInput = listElement.querySelector('.list-item__edit');
+                    editInput.focus();
+                });
+
+                // Edit input events
+                const editInput = listElement.querySelector('.list-item__edit');
+                editInput.addEventListener('blur', () => {
+                    listElement.classList.remove('list-item--editing');
+                    if (editInput.value.trim() !== list.name) {
+                        this.editList(list.id, editInput.value);
+                    }
+                });
+                editInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        listElement.classList.remove('list-item--editing');
+                        if (editInput.value.trim() !== list.name) {
+                            this.editList(list.id, editInput.value);
+                        }
+                    }
+                });
+                editInput.addEventListener('keyup', (e) => {
+                    if (e.key === 'Escape') {
+                        e.preventDefault();
+                        listElement.classList.remove('list-item--editing');
+                        editInput.value = list.name;
+                    }
+                });
+
+                // Delete button event
+                listElement.querySelector('.list-item__action--delete').addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const todoCount = list.todos.length;
+                    const message = todoCount > 0
+                        ? `Are you sure you want to delete "${list.name}" and its ${todoCount} todo${todoCount === 1 ? '' : 's'}?`
+                        : `Are you sure you want to delete "${list.name}"?`;
+
+                    if (confirm(message)) {
+                        this.deleteList(list.id);
+                    }
+                });
+
                 this.listContainer.appendChild(listElement);
             });
     }

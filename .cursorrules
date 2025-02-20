@@ -101,7 +101,8 @@
                     "read",
                     "update",
                     "delete",
-                    "reorder"
+                    "reorder",
+                    "rename"
                 ],
                 "properties": {
                     "id": "Unique timestamp-based identifier",
@@ -109,6 +110,34 @@
                     "todos": "Array of todo items",
                     "createdAt": "ISO timestamp",
                     "order": "Position in the lists array for drag and drop"
+                },
+                "ui": {
+                    "actions": {
+                        "edit": {
+                            "type": "inline",
+                            "trigger": "Edit button or double-click",
+                            "icon": "✎",
+                            "color": "primary"
+                        },
+                        "delete": {
+                            "type": "immediate",
+                            "trigger": "Delete button",
+                            "confirmation": "Required when list has todos",
+                            "icon": "×",
+                            "color": "danger"
+                        }
+                    },
+                    "states": {
+                        "normal": "Default view with name and todo count",
+                        "editing": "Inline name editing with focus",
+                        "active": "Currently selected list",
+                        "dragging": "During drag and drop operation"
+                    },
+                    "interactions": {
+                        "hover": "Shows action buttons and subtle highlight",
+                        "active": "Highlights with primary color",
+                        "editing": "Shows inline edit input"
+                    }
                 }
             },
             "todos": {
@@ -166,6 +195,30 @@
                     "local": "localStorage for offline persistence",
                     "remote": "Firebase Realtime Database",
                     "sync": "Bidirectional with offline-first priority"
+                },
+                "initialization": {
+                    "sequence": [
+                        "Wait for Firebase connection",
+                        "Test write permissions",
+                        "Load initial Firebase data",
+                        "Fall back to localStorage if needed",
+                        "Start real-time sync"
+                    ],
+                    "error_handling": [
+                        "Connection failure fallback",
+                        "Permission error detection",
+                        "Data validation",
+                        "Sync error recovery"
+                    ]
+                },
+                "cross_browser": {
+                    "enabled": true,
+                    "features": [
+                        "Shared data across windows",
+                        "Incognito mode support",
+                        "Real-time updates",
+                        "Conflict resolution"
+                    ]
                 }
             }
         },
@@ -250,7 +303,18 @@
                 "connection_test": "Uses _connection_test node for permission verification",
                 "offline_first": "Prioritizes localStorage over Firebase",
                 "conflict_resolution": "Last write wins with JSON comparison",
-                "error_handling": "Graceful fallback to offline mode"
+                "error_handling": "Graceful fallback to offline mode",
+                "initialization": {
+                    "sequence": "Promise-based connection verification",
+                    "timeout": "Fallback to localStorage after connection timeout",
+                    "retry": "Automatic reconnection attempts"
+                },
+                "data_flow": {
+                    "initial_load": "Load from Firebase when connected",
+                    "real_time": "Listen for remote changes",
+                    "local_changes": "Update Firebase and localStorage",
+                    "offline_changes": "Queue for sync when online"
+                }
             }
         },
         "architecture": {

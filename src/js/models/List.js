@@ -52,6 +52,13 @@ class List {
         return todo;
     }
 
+    editName(newName) {
+        if (newName && newName.trim()) {
+            this.name = newName.trim();
+        }
+        return this;
+    }
+
     toJSON() {
         return {
             id: this.id,
