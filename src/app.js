@@ -282,7 +282,13 @@ class TodoApp {
     renderLists() {
         this.listContainer.innerHTML = '';
         this.lists
-            .sort((a, b) => a.order - b.order)
+            .sort((a, b) => {
+                // Sort by favorite first, then by order
+                if (a.favorite !== b.favorite) {
+                    return b.favorite ? 1 : -1;
+                }
+                return a.order - b.order;
+            })
             .forEach(list => {
                 const listElement = document.createElement('div');
                 listElement.className = `list-item${list.id === this.currentListId ? ' active' : ''}`;
@@ -296,10 +302,17 @@ class TodoApp {
                     </div>
                     <input type="text" class="list-item__edit" value="${list.name}" placeholder="List name">
                     <div class="list-item__actions">
+                        <button class="list-item__action list-item__action--favorite${list.favorite ? ' active' : ''}" title="Toggle favorite"></button>
                         <button class="list-item__action list-item__action--edit" title="Rename list"></button>
                         <button class="list-item__action list-item__action--delete" title="Delete list"></button>
                     </div>
                 `;
+
+                // Favorite button event
+                listElement.querySelector('.list-item__action--favorite').addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    this.toggleListFavorite(list.id);
+                });
 
                 // Click event for selecting list
                 listElement.addEventListener('click', (e) => {
@@ -374,22 +387,40 @@ class TodoApp {
         });
 
         filteredTodos
-            .sort((a, b) => a.order - b.order)
+            .sort((a, b) => {
+                // Sort by favorite first, then by order
+                if (a.favorite !== b.favorite) {
+                    return b.favorite ? 1 : -1;
+                }
+                return a.order - b.order;
+            })
             .forEach(todo => {
                 const todoElement = document.createElement('div');
-                todoElement.className = `todo-item${todo.completed ? ' todo-item--completed' : ''}`;
+                todoElement.className = `todo-item${todo.completed ? ' todo-item--completed' : ''}${todo.favorite ? ' favorite' : ''}`;
                 todoElement.draggable = true;
                 todoElement.dataset.id = todo.id;
                 todoElement.dataset.type = 'todo';
                 todoElement.innerHTML = `
-                    <input type="checkbox" class="todo-item__checkbox" ${todo.completed ? 'checked' : ''}>
-                    <span class="todo-item__text">${todo.text}</span>
-                    <input type="text" class="todo-item__edit" value="${todo.text}">
+                    <div class="todo-item__content">
+                        <div class="todo-item__checkbox-wrapper">
+                            <input type="checkbox" class="todo-item__checkbox" ${todo.completed ? 'checked' : ''}>
+                            <div class="todo-item__checkbox-custom"></div>
+                        </div>
+                        <span class="todo-item__text">${todo.text}</span>
+                        <input type="text" class="todo-item__edit" value="${todo.text}">
+                    </div>
                     <div class="todo-item__actions">
-                        <button class="todo-item__action todo-item__action--edit" title="Edit"></button>
-                        <button class="todo-item__action todo-item__action--delete" title="Delete"></button>
+                        <button class="todo-item__action todo-item__action--favorite${todo.favorite ? ' active' : ''}" title="Toggle favorite"></button>
+                        <button class="todo-item__action todo-item__action--edit" title="Edit todo"></button>
+                        <button class="todo-item__action todo-item__action--delete" title="Delete todo"></button>
                     </div>
                 `;
+
+                // Favorite button event
+                todoElement.querySelector('.todo-item__action--favorite').addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    this.toggleTodoFavorite(todo.id);
+                });
 
                 // Checkbox event
                 todoElement.querySelector('.todo-item__checkbox').addEventListener('change', () => {
@@ -443,5 +474,25 @@ class TodoApp {
 
         const activeCount = currentList.todos.filter(todo => !todo.completed).length;
         this.todoCount.textContent = `${activeCount} item${activeCount !== 1 ? 's' : ''} left`;
+    }
+
+    toggleListFavorite(listId) {
+        const list = this.lists.find(l => l.id === listId);
+        if (list) {
+            list.toggleFavorite();
+            this.saveToLocalStorage();
+            this.firebaseService.uploadData(this.lists);
+            this.updateUI();
+        }
+    }
+
+    toggleTodoFavorite(todoId) {
+        const currentList = this.lists.find(list => list.id === this.currentListId);
+        if (currentList) {
+            currentList.toggleTodoFavorite(todoId);
+            this.saveToLocalStorage();
+            this.firebaseService.uploadData(this.lists);
+            this.updateUI();
+        }
     }
 } 

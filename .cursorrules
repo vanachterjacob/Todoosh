@@ -102,17 +102,26 @@
                     "update",
                     "delete",
                     "reorder",
-                    "rename"
+                    "rename",
+                    "favorite"
                 ],
                 "properties": {
                     "id": "Unique timestamp-based identifier",
                     "name": "User-defined list name",
                     "todos": "Array of todo items",
                     "createdAt": "ISO timestamp",
-                    "order": "Position in the lists array for drag and drop"
+                    "order": "Position in the lists array for drag and drop",
+                    "favorite": "Boolean favorite status"
                 },
                 "ui": {
                     "actions": {
+                        "favorite": {
+                            "type": "toggle",
+                            "trigger": "Star button",
+                            "icon": "★",
+                            "color": "#FFD700",
+                            "visibility": "Only visible when favorited or on hover"
+                        },
                         "edit": {
                             "type": "inline",
                             "trigger": "Edit button or double-click",
@@ -131,12 +140,14 @@
                         "normal": "Default view with name and todo count",
                         "editing": "Inline name editing with focus",
                         "active": "Currently selected list",
-                        "dragging": "During drag and drop operation"
+                        "dragging": "During drag and drop operation",
+                        "favorite": "Shows gold star, sorted to top of list"
                     },
                     "interactions": {
                         "hover": "Shows action buttons and subtle highlight",
                         "active": "Highlights with primary color",
-                        "editing": "Shows inline edit input"
+                        "editing": "Shows inline edit input",
+                        "favorite": "Shows star icon on hover, always visible when favorited"
                     }
                 }
             },
@@ -146,20 +157,51 @@
                     "read",
                     "update",
                     "delete",
-                    "reorder"
+                    "reorder",
+                    "favorite"
                 ],
                 "properties": {
                     "id": "Unique timestamp-based identifier",
                     "text": "User-defined todo text",
                     "completed": "Boolean completion status",
                     "createdAt": "ISO timestamp",
-                    "order": "Position in the todos array for drag and drop"
+                    "order": "Position in the todos array for drag and drop",
+                    "favorite": "Boolean favorite status"
                 },
                 "filters": [
                     "all",
                     "active",
                     "completed"
-                ]
+                ],
+                "ui": {
+                    "actions": {
+                        "favorite": {
+                            "type": "toggle",
+                            "trigger": "Star button",
+                            "icon": "★",
+                            "color": "#FFD700",
+                            "visibility": "Only visible when favorited or on hover"
+                        },
+                        "edit": {
+                            "type": "inline",
+                            "trigger": "Edit button",
+                            "icon": "✎",
+                            "color": "primary"
+                        },
+                        "delete": {
+                            "type": "immediate",
+                            "trigger": "Delete button",
+                            "icon": "×",
+                            "color": "danger"
+                        }
+                    },
+                    "states": {
+                        "normal": "Default view with checkbox and text",
+                        "completed": "Checked checkbox with strikethrough text",
+                        "editing": "Shows edit input instead of text",
+                        "favorite": "Shows gold star, sorted to top of list"
+                    }
+                }
             },
             "dragAndDrop": {
                 "implementation": "HTML5 Drag and Drop API",
@@ -268,14 +310,16 @@
                 "Sidebar-based navigation for better organization",
                 "Card-based content areas for visual hierarchy",
                 "Responsive design with mobile-first approach",
-                "CSS Grid for main layout, Flexbox for components"
+                "CSS Grid for main layout, Flexbox for components",
+                "Favorite items sorted to top of lists"
             ],
             "interactions": [
                 "Smooth transitions for all interactive elements",
                 "Hover states with subtle background changes",
                 "Slide-in animations for new todos",
-                "Progressive disclosure for delete buttons",
-                "Immediate feedback for sync status"
+                "Progressive disclosure for action buttons",
+                "Immediate feedback for sync status",
+                "Star icon only visible when favorited or on hover"
             ],
             "accessibility": [
                 "High contrast color scheme",

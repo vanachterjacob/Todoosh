@@ -5,6 +5,7 @@ class List {
         this.todos = [];
         this.createdAt = new Date().toISOString();
         this.order = order;
+        this.favorite = false;
     }
 
     addTodo(text) {
@@ -13,7 +14,8 @@ class List {
             text,
             completed: false,
             createdAt: new Date().toISOString(),
-            order: this.todos.length
+            order: this.todos.length,
+            favorite: false
         };
         this.todos.push(todo);
         return todo;
@@ -59,13 +61,27 @@ class List {
         return this;
     }
 
+    toggleFavorite() {
+        this.favorite = !this.favorite;
+        return this;
+    }
+
+    toggleTodoFavorite(todoId) {
+        const todo = this.todos.find(todo => todo.id === todoId);
+        if (todo) {
+            todo.favorite = !todo.favorite;
+        }
+        return todo;
+    }
+
     toJSON() {
         return {
             id: this.id,
             name: this.name,
             todos: this.todos,
             createdAt: this.createdAt,
-            order: this.order
+            order: this.order,
+            favorite: this.favorite
         };
     }
 
@@ -74,6 +90,7 @@ class List {
         list.id = json.id;
         list.todos = json.todos;
         list.createdAt = json.createdAt;
+        list.favorite = json.favorite || false;
         return list;
     }
 } 
