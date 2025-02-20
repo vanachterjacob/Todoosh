@@ -13,6 +13,26 @@
     --color-danger: #EF4444;
     --color-accent: #8B5CF6;
 
+    /* Dark theme colors - Code Editor Theme */
+    --color-dark-primary: #61AFEF;
+    --color-dark-primary-light: #528BFF;
+    --color-dark-primary-dark: #4D78CC;
+    --color-dark-text: #ABB2BF;
+    --color-dark-text-light: #7F848E;
+    --color-dark-background: #282C34;
+    --color-dark-background-light: #2F333D;
+    --color-dark-background-dark: #21252B;
+    --color-dark-border: #3E4451;
+    --color-dark-success: #98C379;
+    --color-dark-danger: #E06C75;
+    --color-dark-accent: #C678DD;
+
+    /* Dark theme input colors */
+    --color-dark-input-text: #FFFFFF;
+    --color-dark-input-background: #1E2227;
+    --color-dark-input-border: #3E4451;
+    --color-dark-input-focus-border: #528BFF;
+
     /* Spacing */
     --spacing-xs: 0.25rem;
     --spacing-sm: 0.5rem;
@@ -29,6 +49,11 @@
     --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
     --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
 
+    /* Dark theme shadows */
+    --shadow-dark-sm: 0 1px 2px 0 rgb(0 0 0 / 0.2);
+    --shadow-dark-md: 0 4px 6px -1px rgb(0 0 0 / 0.3);
+    --shadow-dark-lg: 0 10px 15px -3px rgb(0 0 0 / 0.4);
+
     /* Layout */
     --sidebar-width: 300px;
     --max-content-width: 1400px;
@@ -39,4 +64,47 @@
     --radius-sm: 0.375rem;
     --radius-md: 0.5rem;
     --radius-lg: 0.75rem;
+}
+
+/* Dark theme class */
+.dark-theme {
+    --color-primary: var(--color-dark-primary);
+    --color-primary-light: var(--color-dark-primary-light);
+    --color-primary-dark: var(--color-dark-primary-dark);
+    --color-text: var(--color-dark-text);
+    --color-text-light: var(--color-dark-text-light);
+    --color-background: var(--color-dark-background);
+    --color-background-light: var(--color-dark-background-light);
+    --color-background-dark: var(--color-dark-background-dark);
+    --color-border: var(--color-dark-border);
+    --color-success: var(--color-dark-success);
+    --color-danger: var(--color-dark-danger);
+    --color-accent: var(--color-dark-accent);
+    --shadow-sm: var(--shadow-dark-sm);
+    --shadow-md: var(--shadow-dark-md);
+    --shadow-lg: var(--shadow-dark-lg);
+}
+
+/* Dark theme input styles */
+.dark-theme input[type="text"],
+.dark-theme input[type="search"],
+.dark-theme input[type="email"],
+.dark-theme input[type="password"],
+.dark-theme textarea {
+    color: var(--color-dark-input-text);
+    background-color: var(--color-dark-input-background);
+    border-color: var(--color-dark-input-border);
+}
+
+.dark-theme input[type="text"]:focus,
+.dark-theme input[type="search"]:focus,
+.dark-theme input[type="email"]:focus,
+.dark-theme input[type="password"]:focus,
+.dark-theme textarea:focus {
+    border-color: var(--color-dark-input-focus-border);
+    box-shadow: 0 0 0 2px var(--color-dark-input-focus-border);
+}
+
+.dark-theme input::placeholder {
+    color: var(--color-dark-text-light);
 }

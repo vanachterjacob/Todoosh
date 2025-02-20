@@ -10,6 +10,8 @@
 /* Import component styles */
 @import 'components/list.css';
 @import 'components/todo.css';
+@import 'components/theme-toggle.css';
+@import 'components/app-name.css';
 
 /* Global styles */
 body {

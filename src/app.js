@@ -11,6 +11,7 @@ class TodoApp {
         this.storageService = new StorageService();
         this.firebaseService = new FirebaseService();
         this.dragDropService = new DragDropService();
+        this.themeToggle = new ThemeToggle();
 
         // Setup services after DOM elements are available
         this.setupServices();
