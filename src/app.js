@@ -59,7 +59,24 @@ class TodoApp {
         };
 
         this.firebaseService.onDataChange = (lists) => {
-            this.lists = lists;
+            if (!Array.isArray(lists)) {
+                console.warn('TodoApp: Received invalid lists data:', lists);
+                return;
+            }
+
+            // Ensure all lists are properly instantiated
+            this.lists = lists.map(list => {
+                if (!(list instanceof List)) {
+                    return List.fromJSON(list);
+                }
+                return list;
+            });
+
+            // Set current list if none is selected
+            if (!this.currentListId && this.lists.length > 0) {
+                this.currentListId = this.lists[0].id;
+            }
+
             this.saveToLocalStorage();
             this.updateUI();
         };
@@ -143,13 +160,23 @@ class TodoApp {
     }
 
     loadFromLocalStorage() {
-        this.lists = this.storageService.load();
-        if (this.lists.length > 0 && !this.currentListId) {
-            this.currentListId = this.lists[0].id;
+        const loadedLists = this.storageService.load();
+        if (Array.isArray(loadedLists)) {
+            this.lists = loadedLists.map(list => List.fromJSON(list));
+            if (this.lists.length > 0 && !this.currentListId) {
+                this.currentListId = this.lists[0].id;
+            }
+        } else {
+            console.warn('TodoApp: Invalid data in localStorage, initializing empty lists');
+            this.lists = [];
         }
     }
 
     saveToLocalStorage() {
+        if (!Array.isArray(this.lists)) {
+            console.warn('TodoApp: Cannot save invalid lists to localStorage');
+            return;
+        }
         this.storageService.save(this.lists);
     }
 
@@ -281,6 +308,14 @@ class TodoApp {
 
     renderLists() {
         this.listContainer.innerHTML = '';
+
+        // Ensure lists array exists
+        if (!Array.isArray(this.lists)) {
+            console.warn('TodoApp: Lists is not an array, initializing empty array');
+            this.lists = [];
+            return;
+        }
+
         this.lists
             .sort((a, b) => {
                 // Sort by favorite first, then by order
@@ -290,6 +325,18 @@ class TodoApp {
                 return a.order - b.order;
             })
             .forEach(list => {
+                // Skip invalid list objects
+                if (!list || typeof list !== 'object') {
+                    console.warn('TodoApp: Invalid list object found, skipping:', list);
+                    return;
+                }
+
+                // Ensure todos array exists
+                if (!Array.isArray(list.todos)) {
+                    console.warn('TodoApp: List todos is not an array, initializing empty array for list:', list.id);
+                    list.todos = [];
+                }
+
                 const listElement = document.createElement('div');
                 listElement.className = `list-item${list.id === this.currentListId ? ' active' : ''}`;
                 listElement.draggable = true;
@@ -297,16 +344,41 @@ class TodoApp {
                 listElement.dataset.type = 'list';
                 listElement.innerHTML = `
                     <div class="list-item__content">
-                        <span class="list-item__name">${list.name}</span>
+                        <div class="drag-handle">⋮⋮</div>
+                        <span class="list-item__name">${list.name || 'Untitled List'}</span>
                         <span class="list-item__count">${list.todos.length}</span>
                     </div>
-                    <input type="text" class="list-item__edit" value="${list.name}" placeholder="List name">
+                    <input type="text" class="list-item__edit" value="${list.name || ''}" placeholder="List name">
                     <div class="list-item__actions">
                         <button class="list-item__action list-item__action--favorite${list.favorite ? ' active' : ''}" title="Toggle favorite"></button>
                         <button class="list-item__action list-item__action--edit" title="Rename list"></button>
                         <button class="list-item__action list-item__action--delete" title="Delete list"></button>
                     </div>
                 `;
+
+                // Prevent dragging when interacting with buttons or input
+                listElement.querySelector('.list-item__actions').addEventListener('mousedown', e => {
+                    e.stopPropagation();
+                });
+                listElement.querySelector('.list-item__edit').addEventListener('mousedown', e => {
+                    e.stopPropagation();
+                });
+
+                // Only allow dragging from the drag handle or main content
+                listElement.addEventListener('mousedown', e => {
+                    const isDragHandle = e.target.classList.contains('drag-handle');
+                    const isMainContent = e.target.closest('.list-item__content') && !e.target.closest('.list-item__actions');
+                    if (!isDragHandle && !isMainContent) {
+                        listElement.draggable = false;
+                    } else {
+                        listElement.draggable = true;
+                    }
+                });
+
+                // Reset draggable on mouse up
+                listElement.addEventListener('mouseup', () => {
+                    listElement.draggable = true;
+                });
 
                 // Favorite button event
                 listElement.querySelector('.list-item__action--favorite').addEventListener('click', (e) => {

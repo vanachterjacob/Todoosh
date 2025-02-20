@@ -32,6 +32,41 @@
                     "character": "_"
                 },
                 "subtitle": "offline-first task manager"
+            },
+            "favicons": {
+                "svg": {
+                    "file": "favicon.svg",
+                    "size": "32x32",
+                    "features": [
+                        "Gradient background",
+                        "Checkmark icon",
+                        "Dark/light mode support"
+                    ],
+                    "colors": {
+                        "gradient": {
+                            "start": "primary (#3B82F6)",
+                            "end": "accent (#8B5CF6)"
+                        },
+                        "icon": "white"
+                    }
+                },
+                "png": {
+                    "file": "favicon.png",
+                    "size": "32x32",
+                    "features": [
+                        "Fallback for older browsers",
+                        "Matches SVG design"
+                    ]
+                },
+                "apple": {
+                    "file": "apple-touch-icon.png",
+                    "size": "180x180",
+                    "features": [
+                        "iOS home screen icon",
+                        "High resolution",
+                        "No transparency"
+                    ]
+                }
             }
         },
         "theme": {
@@ -134,6 +169,14 @@
                             "confirmation": "Required when list has todos",
                             "icon": "×",
                             "color": "danger"
+                        },
+                        "drag": {
+                            "type": "handle",
+                            "trigger": "Drag handle",
+                            "icon": "⋮⋮",
+                            "visibility": "Only visible on hover",
+                            "cursor": "grab/grabbing",
+                            "position": "Left side of item"
                         }
                     },
                     "states": {
@@ -210,7 +253,10 @@
                     "Drag and drop lists to reorder",
                     "Visual feedback during drag",
                     "Smooth animations",
-                    "Touch-friendly handles"
+                    "Touch-friendly handles",
+                    "Smart drop zones",
+                    "Position indicators",
+                    "Protected action areas"
                 ],
                 "persistence": {
                     "local": "Immediate update in localStorage",
@@ -218,10 +264,26 @@
                     "offline": "Works without internet connection"
                 },
                 "ui": {
-                    "dragHandle": "Visible on hover",
-                    "dropIndicator": "Highlights drop target",
-                    "animation": "Smooth transition during drag",
-                    "feedback": "Visual cues for drag state"
+                    "dragHandle": {
+                        "visibility": "Progressive disclosure on hover",
+                        "style": "Vertical dots (⋮⋮)",
+                        "position": "Left side",
+                        "cursor": {
+                            "default": "grab",
+                            "dragging": "grabbing"
+                        }
+                    },
+                    "dropIndicator": {
+                        "style": "Animated line with dots",
+                        "color": "primary",
+                        "position": "Dynamic based on drop zone",
+                        "animation": "Smooth transition"
+                    },
+                    "dragPreview": {
+                        "opacity": "0.7",
+                        "scale": "0.98",
+                        "feedback": "Visual transform"
+                    }
                 }
             },
             "sync": {
