@@ -1,10 +1,10 @@
 class List {
-    constructor(name, order = Date.now()) {
-        this.id = Date.now().toString();
+    constructor(name, id = Date.now().toString()) {
+        this.id = id;
         this.name = name;
         this.todos = [];
         this.createdAt = new Date().toISOString();
-        this.order = order;
+        this.order = 0;
         this.favorite = false;
     }
 
@@ -15,10 +15,49 @@ class List {
             completed: false,
             createdAt: new Date().toISOString(),
             order: this.todos.length,
-            favorite: false
+            favorite: false,
+            subtasks: []
         };
         this.todos.push(todo);
         return todo;
+    }
+
+    addSubtask(todoId, text) {
+        const todo = this.todos.find(todo => todo.id === todoId);
+        if (todo) {
+            if (!Array.isArray(todo.subtasks)) {
+                todo.subtasks = [];
+            }
+
+            const subtask = {
+                id: Date.now().toString(),
+                text,
+                completed: false,
+                createdAt: new Date().toISOString(),
+                order: todo.subtasks.length,
+                parent: todoId
+            };
+            todo.subtasks.push(subtask);
+            return subtask;
+        }
+        return null;
+    }
+
+    removeSubtask(todoId, subtaskId) {
+        const todo = this.todos.find(todo => todo.id === todoId);
+        if (todo) {
+            todo.subtasks = todo.subtasks.filter(subtask => subtask.id !== subtaskId);
+        }
+    }
+
+    toggleSubtask(todoId, subtaskId) {
+        const todo = this.todos.find(todo => todo.id === todoId);
+        if (todo) {
+            const subtask = todo.subtasks.find(subtask => subtask.id === subtaskId);
+            if (subtask) {
+                subtask.completed = !subtask.completed;
+            }
+        }
     }
 
     removeTodo(todoId) {
@@ -29,6 +68,12 @@ class List {
         const todo = this.todos.find(todo => todo.id === todoId);
         if (todo) {
             todo.completed = !todo.completed;
+            // When completing a parent task, complete all subtasks
+            if (todo.completed) {
+                todo.subtasks.forEach(subtask => {
+                    subtask.completed = true;
+                });
+            }
         }
         return todo;
     }
@@ -49,9 +94,19 @@ class List {
     editTodo(todoId, newText) {
         const todo = this.todos.find(todo => todo.id === todoId);
         if (todo) {
-            todo.text = newText.trim();
+            todo.text = newText;
         }
         return todo;
+    }
+
+    editSubtask(todoId, subtaskId, newText) {
+        const todo = this.todos.find(todo => todo.id === todoId);
+        if (todo) {
+            const subtask = todo.subtasks.find(subtask => subtask.id === subtaskId);
+            if (subtask) {
+                subtask.text = newText;
+            }
+        }
     }
 
     editName(newName) {
@@ -86,8 +141,7 @@ class List {
     }
 
     static fromJSON(json) {
-        const list = new List(json.name, json.order);
-        list.id = json.id;
+        const list = new List(json.name, json.id);
         list.todos = json.todos;
         list.createdAt = json.createdAt;
         list.favorite = json.favorite || false;

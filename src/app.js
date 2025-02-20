@@ -480,12 +480,28 @@ class TodoApp {
                         </div>
                         <span class="todo-item__text">${todo.text}</span>
                         <input type="text" class="todo-item__edit" value="${todo.text}">
+                        <div class="todo-item__actions">
+                            <button class="todo-item__action todo-item__action--favorite${todo.favorite ? ' active' : ''}" title="Toggle favorite"></button>
+                            <button class="todo-item__action todo-item__action--subtask" title="Add subtask">+</button>
+                            <button class="todo-item__action todo-item__action--edit" title="Edit todo"></button>
+                            <button class="todo-item__action todo-item__action--delete" title="Delete todo"></button>
+                        </div>
                     </div>
-                    <div class="todo-item__actions">
-                        <button class="todo-item__action todo-item__action--favorite${todo.favorite ? ' active' : ''}" title="Toggle favorite"></button>
-                        <button class="todo-item__action todo-item__action--edit" title="Edit todo"></button>
-                        <button class="todo-item__action todo-item__action--delete" title="Delete todo"></button>
-                    </div>
+                    ${todo.subtasks && todo.subtasks.length > 0 ? `
+                        <div class="todo-item__subtasks">
+                            ${todo.subtasks.map(subtask => `
+                                <div class="todo-item__subtask" data-id="${subtask.id}">
+                                    <div class="todo-item__checkbox-wrapper">
+                                        <input type="checkbox" class="todo-item__checkbox" ${subtask.completed ? 'checked' : ''}>
+                                        <div class="todo-item__checkbox-custom"></div>
+                                    </div>
+                                    <span class="todo-item__text">${subtask.text}</span>
+                                    <input type="text" class="todo-item__edit" value="${subtask.text}">
+                                    <button class="todo-item__action todo-item__action--delete" title="Delete subtask"></button>
+                                </div>
+                            `).join('')}
+                        </div>
+                    ` : ''}
                 `;
 
                 // Favorite button event
@@ -532,6 +548,103 @@ class TodoApp {
                     this.firebaseService.uploadData(this.lists);
                     this.updateUI();
                 });
+
+                // Add event listener for the add subtask button
+                todoElement.querySelector('.todo-item__action--subtask').addEventListener('click', () => {
+                    const currentList = this.lists.find(list => list.id === this.currentListId);
+                    if (currentList) {
+                        currentList.addSubtask(todo.id, 'New subtask');
+                        this.saveToLocalStorage();
+                        this.firebaseService.uploadData(this.lists);
+                        this.updateUI();
+
+                        // Focus the new subtask after render
+                        requestAnimationFrame(() => {
+                            const subtasks = todoElement.querySelector('.todo-item__subtasks');
+                            if (subtasks) {
+                                const lastSubtask = subtasks.lastElementChild;
+                                if (lastSubtask) {
+                                    const textEl = lastSubtask.querySelector('.todo-item__text');
+                                    textEl.focus();
+                                    // Make the text editable
+                                    lastSubtask.classList.add('todo-item--editing');
+                                    const editInput = lastSubtask.querySelector('.todo-item__edit');
+                                    editInput.focus();
+                                    editInput.select();
+                                }
+                            }
+                        });
+                    }
+                });
+
+                // Add event delegation for subtask events
+                const subtasksContainer = todoElement.querySelector('.todo-item__subtasks');
+                if (subtasksContainer) {
+                    // Subtask checkbox events
+                    subtasksContainer.addEventListener('change', (e) => {
+                        if (e.target.matches('.todo-item__checkbox')) {
+                            const subtaskEl = e.target.closest('.todo-item__subtask');
+                            if (subtaskEl) {
+                                const subtaskId = subtaskEl.dataset.id;
+                                const currentList = this.lists.find(list => list.id === this.currentListId);
+                                if (currentList) {
+                                    currentList.toggleSubtask(todo.id, subtaskId);
+                                    this.saveToLocalStorage();
+                                    this.firebaseService.uploadData(this.lists);
+                                    this.updateUI();
+                                }
+                            }
+                        }
+                    });
+
+                    // Subtask text editing
+                    subtasksContainer.addEventListener('dblclick', (e) => {
+                        if (e.target.matches('.todo-item__text')) {
+                            const subtaskEl = e.target.closest('.todo-item__subtask');
+                            if (subtaskEl) {
+                                subtaskEl.classList.add('todo-item--editing');
+                                const editInput = subtaskEl.querySelector('.todo-item__edit');
+                                editInput.focus();
+                                editInput.select();
+                            }
+                        }
+                    });
+
+                    // Subtask edit input events
+                    subtasksContainer.addEventListener('blur', (e) => {
+                        if (e.target.matches('.todo-item__edit')) {
+                            const subtaskEl = e.target.closest('.todo-item__subtask');
+                            if (subtaskEl) {
+                                subtaskEl.classList.remove('todo-item--editing');
+                                const subtaskId = subtaskEl.dataset.id;
+                                const currentList = this.lists.find(list => list.id === this.currentListId);
+                                if (currentList) {
+                                    currentList.editSubtask(todo.id, subtaskId, e.target.value);
+                                    this.saveToLocalStorage();
+                                    this.firebaseService.uploadData(this.lists);
+                                    this.updateUI();
+                                }
+                            }
+                        }
+                    }, true);
+
+                    // Subtask delete events
+                    subtasksContainer.addEventListener('click', (e) => {
+                        if (e.target.matches('.todo-item__action--delete')) {
+                            const subtaskEl = e.target.closest('.todo-item__subtask');
+                            if (subtaskEl) {
+                                const subtaskId = subtaskEl.dataset.id;
+                                const currentList = this.lists.find(list => list.id === this.currentListId);
+                                if (currentList) {
+                                    currentList.removeSubtask(todo.id, subtaskId);
+                                    this.saveToLocalStorage();
+                                    this.firebaseService.uploadData(this.lists);
+                                    this.updateUI();
+                                }
+                            }
+                        }
+                    });
+                }
 
                 this.todoList.appendChild(todoElement);
             });
