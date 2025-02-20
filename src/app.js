@@ -472,7 +472,9 @@ class TodoApp {
                 todoElement.draggable = true;
                 todoElement.dataset.id = todo.id;
                 todoElement.dataset.type = 'todo';
-                todoElement.innerHTML = `
+
+                // Main todo content without WYSIWYG
+                const mainContent = `
                     <div class="todo-item__content">
                         <div class="todo-item__checkbox-wrapper">
                             <input type="checkbox" class="todo-item__checkbox" ${todo.completed ? 'checked' : ''}>
@@ -486,23 +488,38 @@ class TodoApp {
                             <button class="todo-item__action todo-item__action--edit" title="Edit todo"></button>
                             <button class="todo-item__action todo-item__action--delete" title="Delete todo"></button>
                         </div>
-                    </div>
-                    ${todo.subtasks && todo.subtasks.length > 0 ? `
-                        <div class="todo-item__subtasks">
-                            ${todo.subtasks.map(subtask => `
-                                <div class="todo-item__subtask" data-id="${subtask.id}">
-                                    <div class="todo-item__checkbox-wrapper">
-                                        <input type="checkbox" class="todo-item__checkbox" ${subtask.completed ? 'checked' : ''}>
-                                        <div class="todo-item__checkbox-custom"></div>
-                                    </div>
-                                    <span class="todo-item__text">${subtask.text}</span>
-                                    <input type="text" class="todo-item__edit" value="${subtask.text}">
+                    </div>`;
+
+                // Subtasks content with WYSIWYG
+                const subtasksContent = todo.subtasks && todo.subtasks.length > 0 ? `
+                    <div class="todo-item__subtasks">
+                        ${todo.subtasks.map(subtask => `
+                            <div class="todo-item__subtask" data-id="${subtask.id}">
+                                <div class="todo-item__checkbox-wrapper">
+                                    <input type="checkbox" class="todo-item__checkbox" ${subtask.completed ? 'checked' : ''}>
+                                    <div class="todo-item__checkbox-custom"></div>
+                                </div>
+                                <div class="todo-item__text" contenteditable="false">${sanitizeHTML(subtask.text)}</div>
+                                <div class="todo-item__actions">
+                                    <button class="todo-item__action todo-item__action--edit" title="Edit"></button>
                                     <button class="todo-item__action todo-item__action--delete" title="Delete subtask"></button>
                                 </div>
-                            `).join('')}
+                            </div>
+                        `).join('')}
+                        <div class="wysiwyg-toolbar">
+                            <button class="wysiwyg-toolbar__button" data-command="bold" title="Bold"><b>B</b></button>
+                            <button class="wysiwyg-toolbar__button" data-command="italic" title="Italic"><i>I</i></button>
+                            <button class="wysiwyg-toolbar__button" data-command="underline" title="Underline"><u>U</u></button>
+                            <div class="wysiwyg-toolbar__separator"></div>
+                            <button class="wysiwyg-toolbar__button" data-command="insertUnorderedList" title="Bullet List">•</button>
+                            <button class="wysiwyg-toolbar__button" data-command="insertOrderedList" title="Numbered List">1.</button>
+                            <div class="wysiwyg-toolbar__separator"></div>
+                            <button class="wysiwyg-toolbar__button" data-command="createLink" title="Add Link">🔗</button>
+                            <button class="wysiwyg-toolbar__button" data-command="code" title="Code">〈/〉</button>
                         </div>
-                    ` : ''}
-                `;
+                    </div>` : '';
+
+                todoElement.innerHTML = mainContent + subtasksContent;
 
                 // Favorite button event
                 todoElement.querySelector('.todo-item__action--favorite').addEventListener('click', (e) => {
@@ -515,29 +532,33 @@ class TodoApp {
                     this.toggleTodo(todo.id);
                 });
 
-                // Edit button event
+                // Edit button click for main todo
                 todoElement.querySelector('.todo-item__action--edit').addEventListener('click', () => {
                     todoElement.classList.add('todo-item--editing');
                     const editInput = todoElement.querySelector('.todo-item__edit');
+                    editInput.value = todo.text;
                     editInput.focus();
+                    editInput.select();
                 });
 
-                // Edit input events
+                // Edit input events for main todo
                 const editInput = todoElement.querySelector('.todo-item__edit');
                 editInput.addEventListener('blur', () => {
                     todoElement.classList.remove('todo-item--editing');
-                    this.editTodo(todo.id, editInput.value);
-                });
-                editInput.addEventListener('keypress', (e) => {
-                    if (e.key === 'Enter') {
-                        todoElement.classList.remove('todo-item--editing');
-                        this.editTodo(todo.id, editInput.value);
+                    const newText = editInput.value.trim();
+                    if (newText !== todo.text) {
+                        this.editTodo(todo.id, newText);
                     }
                 });
-                editInput.addEventListener('keyup', (e) => {
-                    if (e.key === 'Escape') {
-                        todoElement.classList.remove('todo-item--editing');
+
+                editInput.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        editInput.blur();
+                    } else if (e.key === 'Escape') {
+                        e.preventDefault();
                         editInput.value = todo.text;
+                        editInput.blur();
                     }
                 });
 
@@ -580,68 +601,64 @@ class TodoApp {
                 // Add event delegation for subtask events
                 const subtasksContainer = todoElement.querySelector('.todo-item__subtasks');
                 if (subtasksContainer) {
-                    // Subtask checkbox events
-                    subtasksContainer.addEventListener('change', (e) => {
-                        if (e.target.matches('.todo-item__checkbox')) {
+                    console.log('Setting up subtask container event listeners');
+
+                    // Subtask edit button click
+                    const boundEditHandler = (e) => {
+                        console.log('Edit button clicked', e.target);
+                        if (e.target.matches('.todo-item__action--edit')) {
+                            console.log('Edit button match found');
                             const subtaskEl = e.target.closest('.todo-item__subtask');
+                            console.log('Found subtask element:', subtaskEl);
                             if (subtaskEl) {
-                                const subtaskId = subtaskEl.dataset.id;
-                                const currentList = this.lists.find(list => list.id === this.currentListId);
-                                if (currentList) {
-                                    currentList.toggleSubtask(todo.id, subtaskId);
-                                    this.saveToLocalStorage();
-                                    this.firebaseService.uploadData(this.lists);
-                                    this.updateUI();
-                                }
+                                console.log('Calling startSubtaskEditing');
+                                this.startSubtaskEditing(subtaskEl);
                             }
                         }
-                    });
+                    };
 
-                    // Subtask text editing
-                    subtasksContainer.addEventListener('dblclick', (e) => {
-                        if (e.target.matches('.todo-item__text')) {
-                            const subtaskEl = e.target.closest('.todo-item__subtask');
-                            if (subtaskEl) {
-                                subtaskEl.classList.add('todo-item--editing');
-                                const editInput = subtaskEl.querySelector('.todo-item__edit');
-                                editInput.focus();
-                                editInput.select();
-                            }
-                        }
-                    });
+                    subtasksContainer.addEventListener('click', boundEditHandler.bind(this));
 
-                    // Subtask edit input events
-                    subtasksContainer.addEventListener('blur', (e) => {
-                        if (e.target.matches('.todo-item__edit')) {
-                            const subtaskEl = e.target.closest('.todo-item__subtask');
-                            if (subtaskEl) {
-                                subtaskEl.classList.remove('todo-item--editing');
-                                const subtaskId = subtaskEl.dataset.id;
-                                const currentList = this.lists.find(list => list.id === this.currentListId);
-                                if (currentList) {
-                                    currentList.editSubtask(todo.id, subtaskId, e.target.value);
-                                    this.saveToLocalStorage();
-                                    this.firebaseService.uploadData(this.lists);
-                                    this.updateUI();
-                                }
-                            }
-                        }
-                    }, true);
-
-                    // Subtask delete events
+                    // WYSIWYG toolbar buttons for subtasks
                     subtasksContainer.addEventListener('click', (e) => {
-                        if (e.target.matches('.todo-item__action--delete')) {
-                            const subtaskEl = e.target.closest('.todo-item__subtask');
-                            if (subtaskEl) {
-                                const subtaskId = subtaskEl.dataset.id;
-                                const currentList = this.lists.find(list => list.id === this.currentListId);
-                                if (currentList) {
-                                    currentList.removeSubtask(todo.id, subtaskId);
-                                    this.saveToLocalStorage();
-                                    this.firebaseService.uploadData(this.lists);
-                                    this.updateUI();
+                        const button = e.target.closest('.wysiwyg-toolbar__button');
+                        if (button) {
+                            console.log('WYSIWYG button clicked:', button.dataset.command);
+                            e.preventDefault();
+                            e.stopPropagation();
+
+                            const command = button.dataset.command;
+                            const subtaskEl = subtasksContainer.querySelector('.todo-item__subtask.todo-item--editing');
+                            const textEl = subtaskEl.querySelector('.todo-item__text');
+
+                            // Ensure the text element has focus and selection is maintained
+                            textEl.focus();
+                            const selection = window.getSelection();
+                            const range = selection.getRangeAt(0);
+
+                            if (command === 'createLink') {
+                                const url = prompt('Enter the URL:');
+                                if (url) {
+                                    document.execCommand(command, false, url);
                                 }
+                            } else if (command === 'code') {
+                                const code = document.createElement('code');
+                                code.textContent = range.toString();
+                                range.deleteContents();
+                                range.insertNode(code);
+                            } else {
+                                document.execCommand(command, false, null);
                             }
+
+                            // Keep the button active state
+                            const isActive = document.queryCommandState(command);
+                            button.classList.toggle('active', isActive);
+
+                            // Prevent the contenteditable from losing focus
+                            textEl.focus();
+
+                            // Prevent blur event from firing
+                            e.preventDefault();
                         }
                     });
                 }
@@ -680,4 +697,169 @@ class TodoApp {
             this.updateUI();
         }
     }
+
+    startSubtaskEditing(subtaskEl) {
+        console.log('Starting subtask editing for:', subtaskEl);
+        const textEl = subtaskEl.querySelector('.todo-item__text');
+        console.log('Found text element:', textEl);
+
+        // Don't proceed if already editing
+        if (textEl.contentEditable === 'true') {
+            console.log('Already in edit mode');
+            return;
+        }
+
+        // Store original text for comparison
+        subtaskEl.dataset.originalText = textEl.innerHTML.trim();
+
+        // Enable editing
+        textEl.contentEditable = 'true';
+        subtaskEl.classList.add('todo-item--editing');
+        console.log('Added editing class');
+
+        // Show toolbar
+        const subtasksContainer = subtaskEl.closest('.todo-item__subtasks');
+        const toolbar = subtasksContainer.querySelector('.wysiwyg-toolbar');
+        toolbar.style.display = 'flex';
+        toolbar.style.top = '-35px';
+        console.log('Showing toolbar');
+
+        // Focus after a short delay to ensure the UI is updated
+        setTimeout(() => {
+            textEl.focus();
+            const selection = window.getSelection();
+            const range = document.createRange();
+            range.selectNodeContents(textEl);
+            selection.removeAllRanges();
+            selection.addRange(range);
+            console.log('Set up text selection');
+        }, 10);
+
+        // Save on blur
+        const saveOnBlur = (event) => {
+            console.log('Blur event triggered');
+            // Don't save if clicking within the WYSIWYG toolbar
+            if (event && event.relatedTarget && event.relatedTarget.closest('.wysiwyg-toolbar')) {
+                console.log('Clicked within toolbar, not saving');
+                textEl.focus(); // Keep focus on the text
+                return;
+            }
+
+            const subtaskId = subtaskEl.dataset.id;
+            const todoId = subtaskEl.closest('.todo-item').dataset.id;
+            console.log('Subtask ID:', subtaskId, 'Todo ID:', todoId);
+
+            textEl.contentEditable = 'false';
+            subtaskEl.classList.remove('todo-item--editing');
+            toolbar.style.display = 'none';
+
+            const currentList = this.lists.find(list => list.id === this.currentListId);
+            console.log('Found current list:', currentList);
+            if (currentList) {
+                // Sanitize the HTML before saving
+                const newText = sanitizeHTML(textEl.innerHTML).trim();
+                if (newText !== subtaskEl.dataset.originalText) {
+                    console.log('Saving subtask edit:', newText);
+                    currentList.editSubtask(todoId, subtaskId, newText);
+                    this.saveToLocalStorage();
+                    this.firebaseService.uploadData(this.lists);
+
+                    // Set the sanitized content back to the element
+                    textEl.innerHTML = newText;
+                    this.updateUI();
+                } else {
+                    console.log('No changes made, skipping save');
+                }
+            }
+
+            textEl.removeEventListener('blur', boundSaveOnBlur);
+        };
+
+        // Bind the correct this context
+        const boundSaveOnBlur = saveOnBlur.bind(this);
+        textEl.addEventListener('blur', boundSaveOnBlur);
+        console.log('Added blur event listener');
+
+        // Save on Enter (but allow Shift+Enter for new lines)
+        textEl.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                console.log('Enter key pressed, saving edit');
+                e.preventDefault();
+                textEl.blur();
+            } else if (e.key === 'Escape') {
+                console.log('Escape pressed, canceling edit');
+                e.preventDefault();
+                textEl.innerHTML = subtaskEl.dataset.originalText;
+                textEl.blur();
+            }
+        });
+    }
+}
+
+function sanitizeHTML(html) {
+    // Create a temporary container
+    const container = document.createElement('div');
+
+    // Set the HTML content
+    container.innerHTML = html;
+
+    // List of allowed tags
+    const allowedTags = [
+        'b', 'strong',
+        'i', 'em',
+        'u',
+        's', 'strike',
+        'a',
+        'code',
+        'ul', 'ol', 'li',
+        'p',
+        'br'
+    ];
+
+    // List of allowed attributes
+    const allowedAttributes = {
+        'a': ['href', 'target', 'rel']  // Allow target and rel attributes for links
+    };
+
+    // Function to clean a node
+    function cleanNode(node) {
+        if (node.nodeType === 3) { // Text node
+            return;
+        }
+
+        if (node.nodeType === 1) { // Element node
+            // Remove node if it's not in allowed tags
+            if (!allowedTags.includes(node.tagName.toLowerCase())) {
+                while (node.firstChild) {
+                    node.parentNode.insertBefore(node.firstChild, node);
+                }
+                node.parentNode.removeChild(node);
+                return;
+            }
+
+            // Special handling for links
+            if (node.tagName.toLowerCase() === 'a') {
+                node.setAttribute('target', '_blank');
+                node.setAttribute('rel', 'noopener noreferrer');
+            }
+
+            // Remove all attributes except those that are allowed
+            const attributes = Array.from(node.attributes);
+            attributes.forEach(attr => {
+                const tagName = node.tagName.toLowerCase();
+                const allowedAttrsForTag = allowedAttributes[tagName] || [];
+                if (!allowedAttrsForTag.includes(attr.name)) {
+                    node.removeAttribute(attr.name);
+                }
+            });
+
+            // Clean all child nodes
+            Array.from(node.childNodes).forEach(cleanNode);
+        }
+    }
+
+    // Clean the container
+    Array.from(container.childNodes).forEach(cleanNode);
+
+    return container.innerHTML;
 } 

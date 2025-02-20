@@ -209,7 +209,8 @@
                     "completed": "Boolean completion status",
                     "createdAt": "ISO timestamp",
                     "order": "Position in the todos array for drag and drop",
-                    "favorite": "Boolean favorite status"
+                    "favorite": "Boolean favorite status",
+                    "subtasks": "Array of subtask objects"
                 },
                 "filters": [
                     "all",
@@ -236,6 +237,13 @@
                             "trigger": "Delete button",
                             "icon": "×",
                             "color": "danger"
+                        },
+                        "subtask": {
+                            "type": "add",
+                            "trigger": "Plus button",
+                            "icon": "+",
+                            "color": "primary",
+                            "visibility": "Always visible on hover"
                         }
                     },
                     "states": {
@@ -243,6 +251,113 @@
                         "completed": "Checked checkbox with strikethrough text",
                         "editing": "Shows edit input instead of text",
                         "favorite": "Shows gold star, sorted to top of list"
+                    }
+                }
+            },
+            "subtasks": {
+                "operations": [
+                    "create",
+                    "read",
+                    "update",
+                    "delete"
+                ],
+                "properties": {
+                    "id": "Unique timestamp-based identifier",
+                    "text": "Rich text content with HTML formatting",
+                    "completed": "Boolean completion status",
+                    "createdAt": "ISO timestamp"
+                },
+                "ui": {
+                    "actions": {
+                        "edit": {
+                            "type": "wysiwyg",
+                            "trigger": "Edit button or double-click",
+                            "icon": "✎",
+                            "color": "primary"
+                        },
+                        "delete": {
+                            "type": "immediate",
+                            "trigger": "Delete button",
+                            "icon": "×",
+                            "color": "danger"
+                        }
+                    },
+                    "states": {
+                        "normal": "Default view with checkbox and formatted text",
+                        "completed": "Checked checkbox with strikethrough text",
+                        "editing": "Shows WYSIWYG editor with toolbar"
+                    },
+                    "editor": {
+                        "type": "WYSIWYG",
+                        "toolbar": {
+                            "position": "Above text",
+                            "buttons": [
+                                {
+                                    "command": "bold",
+                                    "icon": "B",
+                                    "title": "Bold"
+                                },
+                                {
+                                    "command": "italic",
+                                    "icon": "I",
+                                    "title": "Italic"
+                                },
+                                {
+                                    "command": "underline",
+                                    "icon": "U",
+                                    "title": "Underline"
+                                },
+                                {
+                                    "command": "insertUnorderedList",
+                                    "icon": "•",
+                                    "title": "Bullet List"
+                                },
+                                {
+                                    "command": "insertOrderedList",
+                                    "icon": "1.",
+                                    "title": "Numbered List"
+                                },
+                                {
+                                    "command": "createLink",
+                                    "icon": "🔗",
+                                    "title": "Add Link"
+                                },
+                                {
+                                    "command": "code",
+                                    "icon": "〈/〉",
+                                    "title": "Code"
+                                }
+                            ],
+                            "separators": [
+                                3,
+                                5
+                            ]
+                        },
+                        "formatting": {
+                            "allowedTags": [
+                                "b",
+                                "strong",
+                                "i",
+                                "em",
+                                "u",
+                                "s",
+                                "strike",
+                                "a",
+                                "code",
+                                "ul",
+                                "ol",
+                                "li",
+                                "p",
+                                "br"
+                            ],
+                            "allowedAttributes": {
+                                "a": [
+                                    "href",
+                                    "target",
+                                    "rel"
+                                ]
+                            }
+                        }
                     }
                 }
             },

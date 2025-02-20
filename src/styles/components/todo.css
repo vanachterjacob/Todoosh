@@ -121,10 +121,12 @@
     flex: 1;
     color: var(--color-text);
     min-width: 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    overflow: visible;
+    white-space: pre-wrap;
+    word-break: break-word;
+    line-height: 1.5;
     margin-right: var(--spacing-sm);
+    min-height: 1.5em;
 }
 
 .todo-item__actions {
@@ -192,42 +194,76 @@
 
 /* Subtasks */
 .todo-item__subtasks {
+    position: relative;
     margin-left: calc(var(--spacing-xl) + 20px);
     padding-left: var(--spacing-md);
     padding-bottom: var(--spacing-sm);
     border-left: 2px solid var(--color-border);
 }
 
-.todo-item__subtask {
+.todo-item__subtasks .wysiwyg-toolbar {
+    position: absolute;
+    top: 0;
+    left: 24px;
+    z-index: 100;
+    display: none;
+    background: var(--color-background);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    padding: var(--spacing-xs);
+    box-shadow: var(--shadow-md);
+    gap: var(--spacing-xs);
+}
+
+.todo-item__subtask.todo-item--editing~.wysiwyg-toolbar {
+    display: flex !important;
+    top: -35px;
+}
+
+/* Hide toolbar for main todo items */
+.todo-item>.todo-item__content .wysiwyg-toolbar {
+    display: none !important;
+}
+
+/* Override any global toolbar styles */
+.wysiwyg-toolbar {
+    display: none;
+}
+
+.todo-item--editing .wysiwyg-toolbar {
+    display: none;
+}
+
+/* Toolbar button styles */
+.wysiwyg-toolbar__button {
+    padding: var(--spacing-xs);
+    border: none;
+    background: none;
+    color: var(--color-text);
+    cursor: pointer;
+    border-radius: var(--radius-xs);
     display: flex;
     align-items: center;
-    gap: var(--spacing-sm);
-    padding: var(--spacing-xs) 0;
-    font-size: 0.9em;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    transition: all var(--transition-quick);
 }
 
-.todo-item__subtask .todo-item__checkbox-wrapper {
-    width: 16px;
-    height: 16px;
+.wysiwyg-toolbar__button:hover {
+    background: var(--color-background-light);
 }
 
-.todo-item__subtask .todo-item__text {
-    color: var(--color-text);
-    margin-right: var(--spacing-sm);
+.wysiwyg-toolbar__button.active {
+    background: var(--color-primary);
+    color: white;
 }
 
-.todo-item__subtask .todo-item__action {
-    opacity: 0;
-    width: 20px;
+.wysiwyg-toolbar__separator {
+    width: 1px;
     height: 20px;
-}
-
-.todo-item__subtask:hover .todo-item__action {
-    opacity: 0.6;
-}
-
-.todo-item__subtask .todo-item__action:hover {
-    opacity: 1;
+    background: var(--color-border);
+    margin: 0 var(--spacing-xs);
 }
 
 /* Completed states */
@@ -239,22 +275,18 @@
 
 /* Edit mode */
 .todo-item__edit {
-    display: none;
     flex: 1;
     border: 1px solid var(--color-border);
     padding: var(--spacing-xs) var(--spacing-sm);
     border-radius: var(--radius-sm);
+    display: none;
     background: var(--color-background);
     min-width: 0;
     margin-right: var(--spacing-sm);
-}
-
-.todo-item--editing .todo-item__text {
-    display: none;
-}
-
-.todo-item--editing .todo-item__edit {
-    display: block;
+    font-size: inherit;
+    line-height: inherit;
+    height: auto;
+    min-height: 1.5em;
 }
 
 /* Drag handle */
@@ -332,16 +364,6 @@
     color: white;
     font-size: 12px;
     font-weight: bold;
-}
-
-.todo-item__text {
-    flex: 1;
-    color: var(--color-text);
-    min-width: 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    margin-right: var(--spacing-sm);
 }
 
 .todo-item__edit {
@@ -539,24 +561,22 @@
     font-weight: bold;
 }
 
-.todo-item__subtasks {
-    margin-top: var(--spacing-sm);
-    margin-left: calc(var(--spacing-xl) + 20px);
-    padding-left: var(--spacing-md);
-    border-left: 2px solid var(--color-border);
-}
-
 .todo-item__subtask {
     display: flex;
     align-items: center;
     gap: var(--spacing-sm);
     padding: var(--spacing-xs) 0;
     font-size: 0.9em;
+    position: relative;
 }
 
 .todo-item__subtask .todo-item__checkbox-wrapper {
     width: 16px;
     height: 16px;
+    margin-top: 0;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
 }
 
 .todo-item__subtask .todo-item__checkbox-custom {
@@ -565,11 +585,19 @@
 
 .todo-item__subtask .todo-item__checkbox-custom::after {
     font-size: 10px;
+    line-height: 1;
 }
 
 .todo-item__subtask .todo-item__text {
+    flex: 1;
     color: var(--color-text);
     margin-right: var(--spacing-sm);
+    min-width: 0;
+    overflow: visible;
+    white-space: pre-wrap;
+    word-break: break-word;
+    line-height: 1.5;
+    min-height: 1.5em;
 }
 
 .todo-item__subtask .todo-item__edit {
@@ -596,4 +624,137 @@
 .todo-item--completed .todo-item__subtask .todo-item__text {
     text-decoration: line-through;
     color: var(--color-text-light);
+}
+
+.wysiwyg-toolbar {
+    display: none;
+}
+
+.todo-item--editing .wysiwyg-toolbar {
+    display: none;
+}
+
+/* Ensure proper positioning for the toolbar */
+.todo-item__subtasks {
+    position: relative;
+}
+
+/* Override any other toolbar display rules */
+.wysiwyg-toolbar {
+    display: none;
+}
+
+.todo-item--editing .wysiwyg-toolbar {
+    display: none;
+}
+
+/* Rich text content styles */
+.todo-item__text b,
+.todo-item__text strong {
+    font-weight: 600;
+}
+
+.todo-item__text i,
+.todo-item__text em {
+    font-style: italic;
+}
+
+.todo-item__text u {
+    text-decoration: underline;
+}
+
+.todo-item__text s,
+.todo-item__text strike {
+    text-decoration: line-through;
+}
+
+.todo-item__text a {
+    color: var(--color-primary);
+    text-decoration: underline;
+}
+
+.todo-item__text ul,
+.todo-item__text ol {
+    margin-left: 1.5em;
+    margin-top: 0.5em;
+    margin-bottom: 0.5em;
+}
+
+.todo-item__text ul {
+    list-style-type: disc;
+}
+
+.todo-item__text ol {
+    list-style-type: decimal;
+}
+
+.todo-item__text p:not(:last-child) {
+    margin-bottom: 0.5em;
+}
+
+.todo-item__text code {
+    font-family: 'Fira Code', monospace;
+    background: var(--color-background-light);
+    padding: 0.2em 0.4em;
+    border-radius: var(--radius-xs);
+    font-size: 0.9em;
+}
+
+/* Completed state adjustments */
+.todo-item--completed .todo-item__text {
+    text-decoration: none;
+    color: var(--color-text-light);
+}
+
+.todo-item--completed .todo-item__text * {
+    text-decoration: line-through;
+}
+
+/* Subtask editing state */
+.todo-item__subtask.todo-item--editing .todo-item__text {
+    min-height: 3em;
+    padding: var(--spacing-xs) var(--spacing-sm);
+    background: var(--color-background-light);
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--color-border);
+    cursor: text;
+    display: block;
+}
+
+.todo-item__subtask.todo-item--editing .todo-item__text:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    background: var(--color-background);
+}
+
+/* Ensure text is visible during editing */
+.todo-item__subtask .todo-item__text[contenteditable="true"] {
+    display: block;
+    min-height: 1.5em;
+    padding: var(--spacing-xs) var(--spacing-sm);
+    background: var(--color-background);
+    border: 1px solid var(--color-primary);
+    border-radius: var(--radius-sm);
+    cursor: text;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+/* Base subtask text styles */
+.todo-item__subtask .todo-item__text {
+    flex: 1;
+    color: var(--color-text);
+    margin-right: var(--spacing-sm);
+    min-width: 0;
+    overflow: visible;
+    white-space: pre-wrap;
+    word-break: break-word;
+    line-height: 1.5;
+    min-height: 1.5em;
+    padding: var(--spacing-xs) 0;
+}
+
+/* Hide edit input since we're using contenteditable */
+.todo-item__subtask .todo-item__edit {
+    display: none;
 }
