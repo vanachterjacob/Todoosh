@@ -4,79 +4,66 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Todoosh - Offline-First Todo Manager</title>
-    <link rel="stylesheet" href="styles.css">
+    <title>Todoosh - Offline-First Todo List</title>
     <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#4A90E2">
+    <link rel="stylesheet" href="src/styles/main.css">
 </head>
 
 <body>
-    <div class="app-layout">
+    <div class="app-container">
         <!-- Sidebar -->
         <aside class="sidebar">
-            <div class="sidebar-header">
-                <h1>Todoosh</h1>
-                <div class="sync-status" id="syncStatus">Offline</div>
-            </div>
-
-            <div class="list-management">
-                <div class="add-list">
-                    <input type="text" id="listInput" placeholder="New list name">
-                    <button id="addList">
-                        <span class="button-content">Add List</span>
-                    </button>
+            <div class="list-header">
+                <h2>Lists</h2>
+                <div class="list-input-container">
+                    <input type="text" id="listInput" placeholder="New list name...">
+                    <button id="addList">Add List</button>
                 </div>
-                <nav class="list-navigation">
-                    <h2>My Lists</h2>
-                    <ul id="listContainer" class="lists-menu">
-                        <!-- Lists will be dynamically added here -->
-                    </ul>
-                </nav>
             </div>
+            <div id="listContainer" class="list-container"></div>
+            <div id="syncStatus" class="sync-status">Offline</div>
         </aside>
 
         <!-- Main Content -->
         <main class="main-content">
-            <div class="content-header">
-                <h2 id="currentListName">Select a List</h2>
-                <div class="view-options">
-                    <div class="todo-filters">
-                        <button class="filter-btn active" data-filter="all">All</button>
-                        <button class="filter-btn" data-filter="active">Active</button>
-                        <button class="filter-btn" data-filter="completed">Completed</button>
-                    </div>
+            <div class="todo-header">
+                <h1 id="currentListName">Select a List</h1>
+                <div class="todo-input-container">
+                    <input type="text" id="todoInput" placeholder="What needs to be done?">
+                    <button id="addTodo">Add Todo</button>
                 </div>
             </div>
 
-            <div class="add-todo">
-                <input type="text" id="todoInput" placeholder="What needs to be done?" disabled>
-                <button id="addTodo" disabled>
-                    <span class="button-content">Add Task</span>
-                </button>
+            <div class="todo-filters">
+                <button class="filter-btn active" data-filter="all">All</button>
+                <button class="filter-btn" data-filter="active">Active</button>
+                <button class="filter-btn" data-filter="completed">Completed</button>
+                <span id="todoCount" class="todo-count">0 items left</span>
+                <button id="clearCompleted" class="clear-completed">Clear completed</button>
             </div>
 
-            <div class="todos-container">
-                <ul id="todoList" class="todo-list"></ul>
-
-                <div class="todo-stats">
-                    <span id="todoCount">0 items left</span>
-                    <button id="clearCompleted">Clear completed</button>
-                </div>
-            </div>
+            <div id="todoList" class="todo-list"></div>
         </main>
     </div>
 
-    <!-- Firebase App (the core Firebase SDK) -->
+    <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <!-- Firebase Realtime Database -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-
     <script src="firebase-config.js"></script>
-    <script src="app.js"></script>
+
+    <!-- Application Scripts -->
+    <script src="src/js/models/List.js"></script>
+    <script src="src/js/services/StorageService.js"></script>
+    <script src="src/js/services/FirebaseService.js"></script>
+    <script src="src/js/services/DragDropService.js"></script>
+    <script src="src/app.js"></script>
     <script>
-        // Register service worker
+        // Initialize the application
+        const app = new TodoApp();
+
+        // Register service worker if supported
         if ('serviceWorker' in navigator && window.location.protocol === 'https:') {
-            navigator.serviceWorker.register('/sw.js')
+            navigator.serviceWorker.register('sw.js')
                 .then(registration => console.log('ServiceWorker registration successful'))
                 .catch(err => console.log('ServiceWorker registration failed:', err));
         }

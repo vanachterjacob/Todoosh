@@ -183,8 +183,19 @@
         "architecture": {
             "files": {
                 "index.html": "Main entry point, loads Firebase SDKs and scripts",
-                "styles.css": "Modern CSS with variables and responsive design",
-                "app.js": "Main application logic using class-based architecture",
+                "src/app.js": "Main application logic using class-based architecture",
+                "src/js/models/List.js": "List model with operations and properties",
+                "src/js/services/StorageService.js": "Handles local storage operations",
+                "src/js/services/FirebaseService.js": "Manages Firebase sync",
+                "src/js/services/DragDropService.js": "Handles drag and drop functionality",
+                "src/styles/main.css": "Main stylesheet importing all other CSS files",
+                "src/styles/base/variables.css": "CSS Custom Properties for theming",
+                "src/styles/base/reset.css": "Modern CSS reset rules",
+                "src/styles/base/typography.css": "Typography-related styles",
+                "src/styles/layout/grid.css": "Grid layout styles",
+                "src/styles/layout/sidebar.css": "Sidebar styles",
+                "src/styles/components/list.css": "List component styles",
+                "src/styles/components/todo.css": "Todo component styles",
                 "firebase-config.js": "Firebase initialization and configuration",
                 "manifest.json": "PWA support with relative paths for file:// protocol",
                 "database.rules.json": "Firebase Realtime Database rules"

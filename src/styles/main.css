@@ -1,0 +1,53 @@
+/* Import base styles */
+@import 'base/variables.css';
+@import 'base/reset.css';
+@import 'base/typography.css';
+
+/* Import layout styles */
+@import 'layout/grid.css';
+@import 'layout/sidebar.css';
+
+/* Import component styles */
+@import 'components/list.css';
+@import 'components/todo.css';
+
+/* Global styles */
+body {
+    background-color: var(--color-background);
+    color: var(--color-text);
+}
+
+.app-container {
+    display: grid;
+    grid-template-columns: var(--sidebar-width) 1fr;
+    min-height: 100vh;
+}
+
+@media (max-width: var(--breakpoint-mobile)) {
+    .app-container {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Utility classes */
+.visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+.drag-handle {
+    cursor: move;
+    opacity: 0;
+    transition: opacity var(--transition-quick);
+}
+
+*:hover>.drag-handle {
+    opacity: 1;
+}
