@@ -165,7 +165,7 @@
 .todo-item__action--favorite {
     opacity: 1 !important;
     color: var(--color-text-light);
-    margin-right: var(--spacing-xs);
+    margin-left: var(--spacing-sm);
 }
 
 .todo-item:hover .todo-item__action--favorite {
@@ -216,6 +216,13 @@
     padding-left: var(--spacing-md);
     padding-bottom: var(--spacing-sm);
     border-left: 2px solid var(--color-border);
+    transition: max-height 250ms ease, border-left-width 250ms ease;
+}
+
+.todo-item__subtasks.collapsed {
+    max-height: 0;
+    border-left-width: 0;
+    padding-bottom: 0;
 }
 
 .todo-item__subtasks .wysiwyg-toolbar {
@@ -753,4 +760,33 @@
 /* Hide edit input since we're using contenteditable */
 .todo-item__subtask .todo-item__edit {
     display: none;
+}
+
+.todo-item__action--collapse {
+    padding: 4px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    transition: transform 250ms ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.todo-item__action--collapse.hidden {
+    display: none;
+}
+
+.todo-item__action--collapse.collapsed {
+    transform: rotate(-90deg);
+}
+
+.todo-item__subtasks {
+    max-height: 1000px;
+    overflow: hidden;
+    transition: max-height 250ms ease;
+}
+
+.todo-item__subtasks.collapsed {
+    max-height: 0;
 }

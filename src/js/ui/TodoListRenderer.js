@@ -42,7 +42,11 @@ class TodoListRenderer {
     createTodoHTML(todo) {
         const mainContent = `
             <div class="todo-item__content">
-                <button class="todo-item__action todo-item__action--favorite${todo.favorite ? ' active' : ''}" title="Toggle favorite"></button>
+                <button class="todo-item__action todo-item__action--collapse${todo.subtasks && todo.subtasks.length ? '' : ' hidden'}${todo.collapsed ? ' collapsed' : ''}" title="Toggle subtasks">
+                    <svg width="12" height="12" viewBox="0 0 12 12">
+                        <path d="M2 4 L6 8 L10 4" fill="none" stroke="currentColor" stroke-width="2"/>
+                    </svg>
+                </button>
                 <div class="todo-item__checkbox-wrapper">
                     <input type="checkbox" class="todo-item__checkbox" ${todo.completed ? 'checked' : ''}>
                     <div class="todo-item__checkbox-custom"></div>
@@ -54,15 +58,16 @@ class TodoListRenderer {
                     <button class="todo-item__action todo-item__action--edit" title="Edit todo"></button>
                     <button class="todo-item__action todo-item__action--delete" title="Delete todo"></button>
                 </div>
+                <button class="todo-item__action todo-item__action--favorite${todo.favorite ? ' active' : ''}" title="Toggle favorite"></button>
             </div>`;
 
-        const subtasksContent = todo.subtasks && todo.subtasks.length > 0 ? this.createSubtasksHTML(todo.subtasks) : '';
+        const subtasksContent = todo.subtasks && todo.subtasks.length > 0 ? this.createSubtasksHTML(todo.subtasks, todo.collapsed) : '';
         return mainContent + subtasksContent;
     }
 
-    createSubtasksHTML(subtasks) {
+    createSubtasksHTML(subtasks, collapsed) {
         return `
-            <div class="todo-item__subtasks">
+            <div class="todo-item__subtasks${collapsed ? ' collapsed' : ''}">
                 ${subtasks.map(subtask => `
                     <div class="todo-item__subtask" data-id="${subtask.id}">
                         <div class="todo-item__checkbox-wrapper">
@@ -107,6 +112,18 @@ class TodoListRenderer {
     }
 
     setupMainTodoListeners(todoElement, todo, currentList) {
+        // Collapse button
+        const collapseButton = todoElement.querySelector('.todo-item__action--collapse');
+        if (collapseButton) {
+            collapseButton.addEventListener('click', (e) => {
+                e.stopPropagation();
+                todo.collapsed = !todo.collapsed;
+                todoElement.querySelector('.todo-item__subtasks')?.classList.toggle('collapsed');
+                collapseButton.classList.toggle('collapsed');
+                this.app.saveToLocalStorage();
+            });
+        }
+
         // Favorite button
         todoElement.querySelector('.todo-item__action--favorite').addEventListener('click', (e) => {
             e.stopPropagation();
