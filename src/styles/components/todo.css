@@ -216,13 +216,16 @@
     padding-left: var(--spacing-md);
     padding-bottom: var(--spacing-sm);
     border-left: 2px solid var(--color-border);
-    transition: max-height 250ms ease, border-left-width 250ms ease;
+    transition: max-height 250ms ease, border-left-width 250ms ease, padding-bottom 250ms ease;
+    max-height: 1000px;
+    overflow: hidden;
 }
 
 .todo-item__subtasks.collapsed {
     max-height: 0;
     border-left-width: 0;
     padding-bottom: 0;
+    overflow: hidden;
 }
 
 .todo-item__subtasks .wysiwyg-toolbar {
@@ -763,30 +766,37 @@
 }
 
 .todo-item__action--collapse {
-    padding: 4px;
-    background: transparent;
-    border: none;
-    cursor: pointer;
-    transition: transform 250ms ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.todo-item__action--collapse.hidden {
     display: none;
 }
 
-.todo-item__action--collapse.collapsed {
+.todo-item__subtask-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    padding: 2px 6px;
+    margin-left: var(--spacing-sm);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    background: var(--color-background-light);
+    color: var(--color-text-light);
+    font-size: 0.8em;
+    cursor: pointer;
+    transition: all var(--transition-quick);
+}
+
+.todo-item__subtask-indicator:hover {
+    background: var(--color-background-dark);
+    border-color: var(--color-border);
+}
+
+.todo-item__subtask-indicator .subtask-count {
+    font-weight: 500;
+}
+
+.todo-item__subtask-indicator svg {
+    transition: transform var(--transition-quick);
+}
+
+.todo-item__subtask-indicator.collapsed svg {
     transform: rotate(-90deg);
-}
-
-.todo-item__subtasks {
-    max-height: 1000px;
-    overflow: hidden;
-    transition: max-height 250ms ease;
-}
-
-.todo-item__subtasks.collapsed {
-    max-height: 0;
 }

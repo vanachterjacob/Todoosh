@@ -42,16 +42,18 @@ class TodoListRenderer {
     createTodoHTML(todo) {
         const mainContent = `
             <div class="todo-item__content">
-                <button class="todo-item__action todo-item__action--collapse${todo.subtasks && todo.subtasks.length ? '' : ' hidden'}${todo.collapsed ? ' collapsed' : ''}" title="Toggle subtasks">
-                    <svg width="12" height="12" viewBox="0 0 12 12">
-                        <path d="M2 4 L6 8 L10 4" fill="none" stroke="currentColor" stroke-width="2"/>
-                    </svg>
-                </button>
                 <div class="todo-item__checkbox-wrapper">
                     <input type="checkbox" class="todo-item__checkbox" ${todo.completed ? 'checked' : ''}>
                     <div class="todo-item__checkbox-custom"></div>
                 </div>
                 <span class="todo-item__text">${todo.text}</span>
+                ${todo.subtasks && todo.subtasks.length ? `
+                <button class="todo-item__subtask-indicator${todo.collapsed ? ' collapsed' : ''}" title="Toggle subtasks">
+                    <span class="subtask-count">${todo.subtasks.filter(subtask => !subtask.completed).length}</span>
+                    <svg width="12" height="12" viewBox="0 0 12 12">
+                        <path d="M2 4 L6 8 L10 4" fill="none" stroke="currentColor" stroke-width="2"/>
+                    </svg>
+                </button>` : ''}
                 <input type="text" class="todo-item__edit" value="${todo.text}">
                 <div class="todo-item__actions">
                     <button class="todo-item__action todo-item__action--subtask" title="Add subtask">+</button>
@@ -112,14 +114,14 @@ class TodoListRenderer {
     }
 
     setupMainTodoListeners(todoElement, todo, currentList) {
-        // Collapse button
-        const collapseButton = todoElement.querySelector('.todo-item__action--collapse');
-        if (collapseButton) {
-            collapseButton.addEventListener('click', (e) => {
+        // Subtask indicator
+        const subtaskIndicator = todoElement.querySelector('.todo-item__subtask-indicator');
+        if (subtaskIndicator) {
+            subtaskIndicator.addEventListener('click', (e) => {
                 e.stopPropagation();
                 todo.collapsed = !todo.collapsed;
                 todoElement.querySelector('.todo-item__subtasks')?.classList.toggle('collapsed');
-                collapseButton.classList.toggle('collapsed');
+                subtaskIndicator.classList.toggle('collapsed');
                 this.app.saveToLocalStorage();
             });
         }
@@ -193,6 +195,29 @@ class TodoListRenderer {
                     this.app.startSubtaskEditing(subtaskEl);
                 }
             }
+        });
+
+        // Checkbox events for subtasks
+        subtasksContainer.querySelectorAll('.todo-item__checkbox').forEach(checkbox => {
+            checkbox.addEventListener('change', () => {
+                const subtaskEl = checkbox.closest('.todo-item__subtask');
+                const todoEl = subtaskEl.closest('.todo-item');
+                const todo = this.app.lists
+                    .find(list => list.id === this.app.currentListId)
+                    .todos.find(t => t.id === todoEl.dataset.id);
+
+                const subtask = todo.subtasks.find(s => s.id === subtaskEl.dataset.id);
+                subtask.completed = checkbox.checked;
+
+                // Update the counter in the indicator
+                const indicator = todoEl.querySelector('.todo-item__subtask-indicator .subtask-count');
+                if (indicator) {
+                    indicator.textContent = todo.subtasks.filter(s => !s.completed).length;
+                }
+
+                this.app.saveToLocalStorage();
+                this.app.firebaseService.uploadData(this.app.lists);
+            });
         });
 
         // WYSIWYG toolbar
