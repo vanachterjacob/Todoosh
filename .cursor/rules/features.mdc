@@ -2,6 +2,10 @@
 description: 
 globs: 
 ---
+---
+description: 
+globs: 
+---
 {
   "features": {
     "lists": {
@@ -103,7 +107,7 @@ globs:
       }
     },
     "subtasks": {
-      "operations": ["create", "read", "update", "delete", "complete"],
+      "operations": ["create", "read", "update", "delete", "complete", "collapse"],
       "properties": {
         "id": "UUID v4 identifier",
         "text": "Rich text content",
@@ -112,6 +116,26 @@ globs:
         "updatedAt": "ISO timestamp for sync"
       },
       "ui": {
+        "indicator": {
+          "type": "pill",
+          "content": ["active count", "collapse arrow"],
+          "position": "After todo text",
+          "behavior": "Click to toggle collapse",
+          "states": {
+            "normal": "Shows active subtask count",
+            "collapsed": "Arrow rotated -90deg",
+            "empty": "Hidden"
+          }
+        },
+        "container": {
+          "type": "collapsible",
+          "animation": "Smooth height transition",
+          "border": "Left border for visual grouping",
+          "states": {
+            "expanded": "Full height with border",
+            "collapsed": "Height 0, no border"
+          }
+        },
         "actions": {
           "edit": {
             "type": "wysiwyg",
@@ -124,6 +148,11 @@ globs:
             "trigger": "Delete button",
             "icon": "×",
             "color": "danger"
+          },
+          "complete": {
+            "type": "toggle",
+            "trigger": "Checkbox",
+            "affects": ["completion status", "parent counter"]
           }
         },
         "editor": {
