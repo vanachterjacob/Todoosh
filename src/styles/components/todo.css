@@ -140,6 +140,7 @@
     opacity: 1;
 }
 
+/* Base action styles */
 .todo-item__action {
     width: 24px;
     height: 24px;
@@ -153,20 +154,36 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    opacity: 0;
 }
 
-.todo-item__action:hover {
-    background: var(--color-background-light);
-    color: var(--color-text);
+.todo-item:hover .todo-item__action {
+    opacity: 0.6;
 }
 
+/* Override opacity for favorite button */
 .todo-item__action--favorite {
+    opacity: 1 !important;
     color: var(--color-text-light);
+    margin-right: var(--spacing-xs);
+}
+
+.todo-item:hover .todo-item__action--favorite {
+    opacity: 1 !important;
+}
+
+.todo-item__action--favorite::before {
+    content: "★";
+    font-size: 16px;
 }
 
 .todo-item__action--favorite.active {
     color: #FFD700;
-    opacity: 1;
+}
+
+.todo-item__action--favorite:hover {
+    color: #FFD700;
+    transform: scale(1.1);
 }
 
 .todo-item__action--subtask {
@@ -466,27 +483,6 @@
 .todo-item__action--delete::before {
     content: "×";
     font-size: 20px;
-}
-
-.todo-item__action--favorite {
-    color: var(--color-text-light);
-    opacity: 0;
-}
-
-.todo-item__action--favorite::before {
-    content: "★";
-    font-size: 16px;
-}
-
-.todo-item__action--favorite.active {
-    color: #FFD700;
-    opacity: 1;
-}
-
-.todo-item__action--favorite:hover {
-    color: #FFD700;
-    opacity: 1;
-    transform: scale(1.1);
 }
 
 .drop-indicator {

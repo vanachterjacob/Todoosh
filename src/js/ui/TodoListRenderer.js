@@ -42,6 +42,7 @@ class TodoListRenderer {
     createTodoHTML(todo) {
         const mainContent = `
             <div class="todo-item__content">
+                <button class="todo-item__action todo-item__action--favorite${todo.favorite ? ' active' : ''}" title="Toggle favorite"></button>
                 <div class="todo-item__checkbox-wrapper">
                     <input type="checkbox" class="todo-item__checkbox" ${todo.completed ? 'checked' : ''}>
                     <div class="todo-item__checkbox-custom"></div>
@@ -49,7 +50,6 @@ class TodoListRenderer {
                 <span class="todo-item__text">${todo.text}</span>
                 <input type="text" class="todo-item__edit" value="${todo.text}">
                 <div class="todo-item__actions">
-                    <button class="todo-item__action todo-item__action--favorite${todo.favorite ? ' active' : ''}" title="Toggle favorite"></button>
                     <button class="todo-item__action todo-item__action--subtask" title="Add subtask">+</button>
                     <button class="todo-item__action todo-item__action--edit" title="Edit todo"></button>
                     <button class="todo-item__action todo-item__action--delete" title="Delete todo"></button>
