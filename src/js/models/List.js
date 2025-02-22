@@ -16,7 +16,7 @@ class List {
             createdAt: new Date().toISOString(),
             order: this.todos.length,
             favorite: false,
-            subtasks: []
+            subtasks: []  // Always initialize as empty array
         };
         this.todos.push(todo);
         return todo;
@@ -69,7 +69,7 @@ class List {
         if (todo) {
             todo.completed = !todo.completed;
             // When completing a parent task, complete all subtasks
-            if (todo.completed) {
+            if (todo.completed && Array.isArray(todo.subtasks)) {
                 todo.subtasks.forEach(subtask => {
                     subtask.completed = true;
                 });
@@ -142,9 +142,14 @@ class List {
 
     static fromJSON(json) {
         const list = new List(json.name, json.id);
-        list.todos = json.todos;
-        list.createdAt = json.createdAt;
-        list.favorite = json.favorite || false;
+        // Ensure todos is an array and each todo has a subtasks array
+        list.todos = Array.isArray(json.todos) ? json.todos.map(todo => ({
+            ...todo,
+            subtasks: Array.isArray(todo.subtasks) ? todo.subtasks : []
+        })) : [];
+        list.createdAt = json.createdAt || new Date().toISOString();
+        list.order = typeof json.order === 'number' ? json.order : 0;
+        list.favorite = !!json.favorite;
         return list;
     }
 } 

@@ -1,7 +1,8 @@
+// Drag and Drop Service
 class DragDropService {
     constructor() {
         this.draggedElement = null;
-        this.draggedElementType = null; // 'list' or 'todo'
+        this.draggedType = null;
         this.onDrop = null;
         this.dropIndicator = null;
         this.lastDropTarget = null;
@@ -15,7 +16,7 @@ class DragDropService {
         if (!event.target.dataset.id) return;
 
         this.draggedElement = event.target;
-        this.draggedElementType = type;
+        this.draggedType = type;
         this.dragStartY = event.clientY;
 
         // Add dragging class for visual feedback
@@ -43,6 +44,7 @@ class DragDropService {
         if (this.draggedElement) {
             this.draggedElement.classList.remove('dragging');
             this.draggedElement = null;
+            this.draggedType = null;
             this.removeDropIndicator();
 
             // Remove dragging class from container
@@ -57,92 +59,71 @@ class DragDropService {
     }
 
     handleDragOver(event) {
+        if (!this.draggedElement) return;
+
         event.preventDefault();
         event.dataTransfer.dropEffect = 'move';
 
-        // Debounce the drag over handling to improve performance
-        if (this.dropDebounceTimeout) {
-            clearTimeout(this.dropDebounceTimeout);
+        const target = event.target.closest(`[data-type="${this.draggedType}"]`);
+        if (!target || target === this.draggedElement) return;
+
+        const targetRect = target.getBoundingClientRect();
+        const targetY = targetRect.top + targetRect.height / 2;
+
+        if (event.clientY < targetY) {
+            target.classList.add('drop-above');
+            target.classList.remove('drop-below');
+        } else {
+            target.classList.add('drop-below');
+            target.classList.remove('drop-above');
         }
-
-        // Only update if we've moved at least 5 pixels
-        if (Math.abs(this.lastClientY - event.clientY) < 5) {
-            return;
-        }
-        this.lastClientY = event.clientY;
-
-        this.dropDebounceTimeout = setTimeout(() => {
-            const dropTarget = this.findNearestDropTarget(event);
-            if (!dropTarget || dropTarget === this.draggedElement) {
-                this.removeDropIndicator();
-                return;
-            }
-
-            const dropTargetType = dropTarget.dataset.type;
-            if (dropTargetType !== this.draggedElementType) {
-                this.removeDropIndicator();
-                return;
-            }
-
-            // Don't update if we're still over the same target with the same position
-            if (this.lastDropTarget === dropTarget) return;
-            this.lastDropTarget = dropTarget;
-
-            this.updateDropIndicator(dropTarget, event.clientY);
-        }, 10);
-    }
-
-    findNearestDropTarget(event) {
-        const container = this.draggedElementType === 'list' ? 'listContainer' : 'todoList';
-        const items = Array.from(document.getElementById(container).children)
-            .filter(child => child.dataset && child.dataset.id);
-
-        let closestItem = null;
-        let closestDistance = Infinity;
-
-        items.forEach(item => {
-            if (item === this.draggedElement) return;
-
-            const rect = item.getBoundingClientRect();
-            const itemMiddle = rect.top + rect.height / 2;
-            const distance = Math.abs(event.clientY - itemMiddle);
-
-            if (distance < closestDistance) {
-                closestDistance = distance;
-                closestItem = item;
-            }
-        });
-
-        return closestItem;
     }
 
     handleDrop(event) {
+        if (!this.draggedElement) return;
+
         event.preventDefault();
+        const target = event.target.closest(`[data-type="${this.draggedType}"]`);
+        if (!target || target === this.draggedElement) return;
 
-        const dropTarget = this.findNearestDropTarget(event);
-        if (!dropTarget || dropTarget === this.draggedElement) return;
+        // Remove drop indicators
+        target.classList.remove('drop-above', 'drop-below');
 
-        const draggedId = event.dataTransfer.getData('text/plain');
-        const dropTargetId = dropTarget.dataset.id;
+        // Get the container and all items
+        const container = target.parentElement;
+        if (!container) return; // Guard against null container
 
-        if (this.onDrop) {
-            const container = dropTarget.parentNode;
-            const children = Array.from(container.children)
-                .filter(child => child.dataset && child.dataset.id);
+        const items = Array.from(container.children).filter(
+            item => item.dataset && item.dataset.type === this.draggedType
+        );
 
-            let newIndex = children.indexOf(dropTarget);
+        // Calculate the new index
+        const draggedIndex = items.indexOf(this.draggedElement);
+        let targetIndex = items.indexOf(target);
 
-            // Adjust index based on drop position
-            const rect = dropTarget.getBoundingClientRect();
-            const dropAfter = event.clientY > rect.top + (rect.height * this.dropZoneSize);
-            if (dropAfter) {
-                newIndex++;
-            }
+        if (draggedIndex === -1 || targetIndex === -1) return; // Guard against invalid indices
 
-            this.onDrop(draggedId, dropTargetId, newIndex, this.draggedElementType);
+        const targetRect = target.getBoundingClientRect();
+        const targetY = targetRect.top + targetRect.height / 2;
+
+        if (event.clientY > targetY) {
+            targetIndex++;
         }
 
-        this.removeDropIndicator();
+        // Adjust target index if moving down
+        if (draggedIndex < targetIndex) {
+            targetIndex--;
+        }
+
+        // Call the onDrop callback with the relevant information
+        if (this.onDrop) {
+            this.onDrop(
+                this.draggedElement.dataset.id,
+                target.dataset.id,
+                targetIndex,
+                this.draggedType
+            );
+        }
     }
 
     updateDropIndicator(target, clientY) {
@@ -171,4 +152,7 @@ class DragDropService {
             this.dropIndicator = null;
         }
     }
-} 
+}
+
+// Make DragDropService available globally
+window.DragDropService = DragDropService; 

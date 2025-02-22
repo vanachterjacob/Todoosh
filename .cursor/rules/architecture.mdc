@@ -25,6 +25,12 @@ globs:
     }
   },
   "important_decisions": {
+    "portability": [
+      "No installation or server required",
+      "Works directly from file:// protocol",
+      "All dependencies loaded via CDN or included",
+      "Global script loading pattern for maximum compatibility"
+    ],
     "firebase_setup": [
       "Using Firebase 8.10.1 for file:// protocol support",
       "Global script loading pattern",

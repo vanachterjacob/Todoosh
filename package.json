@@ -1,0 +1,11 @@
+{
+    "name": "todoosh",
+    "version": "1.0.0",
+    "description": "Offline-first todo list application",
+    "scripts": {
+        "start": "http-server -c-1"
+    },
+    "devDependencies": {
+        "http-server": "^14.1.1"
+    }
+}

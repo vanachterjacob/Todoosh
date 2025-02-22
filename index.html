@@ -58,15 +58,20 @@
     <script src="firebase-config.js"></script>
 
     <!-- Application Scripts -->
+    <script src="src/js/utils/sanitizer.js"></script>
     <script src="src/js/models/List.js"></script>
     <script src="src/js/services/StorageService.js"></script>
     <script src="src/js/services/FirebaseService.js"></script>
     <script src="src/js/services/DragDropService.js"></script>
+    <script src="src/js/ui/ListRenderer.js"></script>
+    <script src="src/js/ui/TodoListRenderer.js"></script>
     <script src="src/js/components/ThemeToggle.js"></script>
     <script src="src/app.js"></script>
     <script>
-        // Initialize the application
-        const app = new TodoApp();
+        // Wait for all scripts to load before initializing
+        window.addEventListener('load', () => {
+            window.app = new TodoApp();
+        });
 
         // Register service worker if supported
         if ('serviceWorker' in navigator && window.location.protocol === 'https:') {
