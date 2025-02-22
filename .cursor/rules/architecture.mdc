@@ -2,61 +2,161 @@
 description: 
 globs: 
 ---
+---
+description: 
+globs: 
+---
+---
+description: 
+globs: 
+---
+---
+description: 
+globs: 
+---
 {
   "architecture": {
     "files": {
-      "index.html": "Main entry point with Firebase initialization and PWA support",
-      "src/app.js": "Main application logic with class-based architecture",
-      "src/components/": "React-like web components for UI elements",
-      "src/js/": "Core JavaScript modules and utilities",
-      "src/services/": "Service layer for Firebase, Storage, and other core functionalities",
-      "src/styles/": "CSS modules and theme configuration",
-      "src/utils/": "Shared utilities and helper functions",
-      "firebase-config.js": "Firebase initialization and configuration",
-      "manifest.json": "PWA configuration with file:// protocol support",
-      "database.rules.json": "Firebase Realtime Database security rules",
-      "sw.js": "Service Worker for offline functionality"
+      "index.html": "Main entry point with optimized script loading order",
+      "src/app.js": "Main application logic with global class registration",
+      "src/js/": {
+        "components/": {
+          "base/": {
+            "Component.js": "Base component with lifecycle methods",
+            "FormComponent.js": "Form handling base component"
+          },
+          "todo/": {
+            "TodoContainer.js": "Todo list container component",
+            "TodoItem.js": "Individual todo item component",
+            "TodoInput.js": "Todo input form component"
+          },
+          "list/": {
+            "ListContainer.js": "List container component",
+            "ListItem.js": "Individual list item component",
+            "ListInput.js": "List input form component"
+          },
+          "AppName.js": "Animated app name component",
+          "ThemeToggle.js": "Theme switcher component",
+          "SyncStatus.js": "Sync status indicator component"
+        },
+        "models/": {
+          "List.js": "List model with validation",
+          "Todo.js": "Todo model with subtask support"
+        },
+        "services/": {
+          "BaseService.js": "Abstract base service with error handling",
+          "FirebaseService.js": "Firebase integration and sync",
+          "StorageService.js": "Local storage management",
+          "DragDropService.js": "Drag and drop functionality"
+        },
+        "utils/": {
+          "constants.js": "Centralized constants",
+          "validator.js": "Data validation",
+          "errorBoundary.js": "Error handling",
+          "sanitizer.js": "Content sanitization"
+        },
+        "ui/": {
+          "TodoListRenderer.js": "Todo list UI renderer",
+          "ListRenderer.js": "List UI renderer"
+        }
+      },
+      "src/styles/": {
+        "base/": {
+          "variables.css": "CSS custom properties",
+          "reset.css": "Modern CSS reset",
+          "typography.css": "Typography rules"
+        },
+        "components/": {
+          "theme-toggle.css": "Theme toggle styling",
+          "todo.css": "Todo components styling",
+          "list.css": "List components styling",
+          "app-name.css": "App name styling"
+        },
+        "layout/": {
+          "grid.css": "Layout grid system",
+          "sidebar.css": "Sidebar styling"
+        },
+        "main.css": "Main stylesheet with imports"
+      }
     },
-    "data": {
-      "local": "Uses localStorage with JSON serialization",
-      "cloud": "Uses Firebase Realtime Database with offline persistence",
-      "sync": "Bidirectional sync with conflict resolution",
-      "validation": "Type checking and data validation throughout"
+    "optimizations": {
+      "script_loading": {
+        "order": [
+          "Firebase SDK",
+          "Firebase config",
+          "Utils",
+          "Base components",
+          "Services",
+          "Models",
+          "Components",
+          "UI renderers",
+          "Main app"
+        ],
+        "strategy": "Global registration pattern"
+      },
+      "component_structure": {
+        "base_components": ["Component", "FormComponent"],
+        "inheritance": "All components extend base classes",
+        "registration": "Components registered globally on window"
+      },
+      "styles": {
+        "organization": "Modular CSS with clear separation",
+        "theming": "CSS custom properties with dark mode support",
+        "transitions": "Smooth animations and theme switching"
+      },
+      "performance": {
+        "caching": "Service worker for static assets",
+        "storage": "Local-first with Firebase sync",
+        "validation": "Schema-based data validation"
+      }
+    },
+    "patterns": {
+      "services": {
+        "base": {
+          "description": "Abstract base service class",
+          "features": [
+            "Error boundary wrapping",
+            "Standardized error handling",
+            "Safe property access",
+            "Event system",
+            "Retry mechanism"
+          ]
+        }
+      },
+      "components": {
+        "base": {
+          "description": "Base component classes",
+          "features": [
+            "Lifecycle methods",
+            "State management",
+            "Event delegation",
+            "Child component handling",
+            "Error boundaries"
+          ]
+        }
+      }
     }
   },
   "important_decisions": {
     "portability": [
-      "No installation or server required",
-      "Works directly from file:// protocol",
-      "All dependencies loaded via CDN or included",
-      "Global script loading pattern for maximum compatibility"
+      "No build step or bundler required",
+      "Works from file:// protocol",
+      "Global registration pattern",
+      "Minimal external dependencies"
     ],
-    "firebase_setup": [
-      "Using Firebase 8.10.1 for file:// protocol support",
-      "Global script loading pattern",
-      "No module bundler required",
-      "Offline persistence enabled",
-      "Connection testing via _connection_test node"
+    "maintainability": [
+      "Consistent file organization",
+      "Clear component hierarchy",
+      "Centralized constants",
+      "Modular CSS structure",
+      "Comprehensive documentation"
     ],
-    "offline_first": [
-      "Service Worker for static asset caching",
-      "localStorage as primary data store",
-      "Firebase as secondary with sync",
-      "Optimistic UI updates",
-      "Graceful degradation when offline"
-    ],
-    "security": [
-      "HTTPS recommended but not required",
-      "Permissive Firebase rules for development",
-      "API key restrictions for production",
-      "XSS prevention in HTML content"
-    ],
-    "data_integrity": [
-      "JSON schema validation",
-      "Type checking on data operations",
-      "Default values for missing fields",
-      "Safe property access patterns",
-      "Error boundaries for async operations"
+    "reliability": [
+      "Robust error handling",
+      "Data validation",
+      "Offline support",
+      "Sync conflict resolution",
+      "Fallback mechanisms"
     ]
   }
 }

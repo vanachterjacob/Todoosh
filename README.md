@@ -18,7 +18,7 @@ A portable, offline-first todo list manager with Firebase sync.
 - 🔄 Real-time sync with Firebase
 - 🌐 Cross-browser data persistence
 - 📱 Responsive design for all devices
-- 🎨 Beautiful light and dark themes
+- 🎨 Beautiful light and dark themes with smooth transitions
 - 🎯 Modern favicons with SVG, PNG and Apple Touch Icon support
 
 ### Technical Features
@@ -29,61 +29,56 @@ A portable, offline-first todo list manager with Firebase sync.
 - 🔄 Robust sync with conflict resolution
 - 🎯 Modern code editor inspired design
 - 🖼️ Adaptive favicons for all platforms and modes
+- 🎨 CSS custom properties for theming
+- 🔧 Modular component architecture
+- 🛡️ Comprehensive error handling
+- 📊 Schema-based data validation
 
-### List Management Features
-- ⭐ Star lists with left-aligned favorite indicator
-- ✏️ Inline list renaming with keyboard support
-- 🗑️ List deletion with confirmation
-- 🔢 Automatic todo count display
-- 🎯 Active list highlighting
-- 💾 Automatic sync of list changes
+### Component Architecture
+- 🏗️ Base Components:
+  - `Component`: Core lifecycle and state management
+  - `FormComponent`: Form handling and validation
+- 📦 Specialized Components:
+  - Todo: Container, Item, and Input components
+  - List: Container, Item, and Input components
+  - UI: Theme Toggle, Sync Status, and App Name
+- 🔄 Event System:
+  - Standardized event delegation
+  - Centralized event handling
+  - Component-level event management
 
-### Todo Management Features
-- ⭐ Star important todos to keep them at the top
-- ✅ Mark todos as complete
-- ✏️ Edit todo text inline
-- 🔄 Drag and drop reordering within lists:
-  - 🎯 Precise drop zone indicators (above/below)
-  - 📊 Consistent ordering between visual and data positions
-  - 🔄 Smooth animations during drag and drop
-  - 🎨 Visual feedback with transform effects
-  - 📱 Touch device support
-  - 🔁 Auto-scroll during drag operations
-- 🗑️ Quick todo deletion
-- 🔍 Filter by all/active/completed
-- 📑 Rich text subtasks with:
-  - 🔢 Active subtask counter with auto-update
-  - 📊 Visual progress indicator
-  - 🔽 Collapsible subtask sections
-  - ✨ Rich text formatting
-  - 📝 Bold, italic, and underline formatting
-  - 📋 Bullet and numbered lists
-  - 🔗 Links and code snippets
-  - 🎨 WYSIWYG toolbar for easy formatting
-  - ⌨️ Inline editing with keyboard shortcuts
-  - ✅ Individual completion tracking
-  - 💾 Automatic state persistence
+### Styling System
+- 🎨 Modular CSS Structure:
+  - Base: Variables, Reset, Typography
+  - Components: Individual component styles
+  - Layout: Grid system and responsive design
+- 🌓 Theme Support:
+  - Light/Dark theme with smooth transitions
+  - CSS custom properties for easy customization
+  - Code editor inspired color schemes
+- 💫 Animations:
+  - Smooth component transitions
+  - Interactive hover effects
+  - Loading and state change animations
 
-### Sync Features
-- 🔄 Real-time bidirectional sync
-- 💾 Local-first data storage
-- 🌐 Cross-browser persistence
-- 🔌 Automatic reconnection
-- 📊 Sync status indicator
-- 🛡️ Fallback to local storage
-
-### Design Features
-- 🌓 Light/Dark theme toggle with smooth transitions
-- 🎨 Code editor inspired color scheme
-- 🖋 Custom monospace branding with animated cursor
-- 💫 Smooth animations and transitions
-- 🎯 High contrast accessibility
+### Data Management
+- 📊 Models:
+  - List: Collection of todos with metadata
+  - Todo: Task items with subtask support
+- 💾 Storage:
+  - Local-first with localStorage
+  - Firebase Realtime Database sync
+  - Offline persistence
+- ✅ Validation:
+  - Schema-based data validation
+  - Type checking
+  - Error boundaries
 
 ## Getting Started
 
 1. Clone the repository
 2. Configure Firebase:
-   - Copy `firebase-config.example.js` to `firebase-config.js`
+   - Copy `config/firebase/firebase-config.template.js` to `config/firebase/firebase-config.js`
    - Add your Firebase configuration:
      ```javascript
      const firebaseConfig = {
@@ -100,39 +95,55 @@ A portable, offline-first todo list manager with Firebase sync.
 
 ## Development
 
-The project uses a simple but robust architecture:
-- Plain HTML, CSS, and JavaScript
-- CSS Custom Properties for theming
-- Class-based JavaScript architecture
-- Firebase Realtime Database for sync
-- Promise-based initialization
-- Event-driven data updates
-
-### Data Flow
-1. App initializes and waits for Firebase connection
-2. Once connected, loads data from Firebase
-3. Updates local storage as backup
-4. Falls back to local storage if Firebase is unavailable
-5. Automatically syncs when connection is restored
-
-### Theme Customization
-
-The app includes a comprehensive theming system:
-
-#### Light Theme
-```css
---color-primary: #3B82F6
---color-accent: #8B5CF6
-/* See .cursorrules for full color palette */
+### Project Structure
+```
+src/
+├── js/
+│   ├── components/    # UI Components
+│   ├── models/       # Data models
+│   ├── services/     # Core services
+│   ├── utils/        # Utilities
+│   └── ui/          # UI renderers
+├── styles/
+│   ├── base/        # Base styles
+│   ├── components/  # Component styles
+│   └── layout/      # Layout styles
+└── app.js           # Main application
 ```
 
-#### Dark Theme (Code Editor Inspired)
+### Architecture
+- Component-based with inheritance
+- Event-driven updates
+- Promise-based initialization
+- Service-oriented design
+- Modular CSS with theming
+
+### Data Flow
+1. App initializes components and services
+2. Components register with global scope
+3. Services handle data and state
+4. Events trigger UI updates
+5. Changes sync to storage
+
+### Theme System
+The app uses CSS custom properties for theming:
+
 ```css
---color-dark-primary: #61AFEF
---color-dark-accent: #C678DD
-/* See .cursorrules for full color palette */
+/* Light Theme */
+:root {
+  --color-primary: #3B82F6;
+  --color-accent: #8B5CF6;
+  /* See variables.css for full palette */
+}
+
+/* Dark Theme */
+.dark-theme {
+  --color-primary: #61AFEF;
+  --color-accent: #C678DD;
+  /* See variables.css for full palette */
+}
 ```
 
 ## License
 
-MIT 
+MIT

@@ -1,0 +1,92 @@
+{
+  "rules": {
+    ".read": "auth != null",
+    ".write": "auth != null",
+    "lists": {
+      "$listId": {
+        ".validate": "newData.hasChildren(['id', 'name', 'todos', 'createdAt', 'order'])",
+        "id": {
+          ".validate": "newData.isString() && newData.val().length > 0"
+        },
+        "name": {
+          ".validate": "newData.isString() && newData.val().length > 0"
+        },
+        "todos": {
+          ".validate": "newData.hasChildren()",
+          "$todoId": {
+            ".validate": "newData.hasChildren(['id', 'text', 'completed', 'createdAt', 'order'])",
+            "id": {
+              ".validate": "newData.isString() && newData.val().length > 0"
+            },
+            "text": {
+              ".validate": "newData.isString() && newData.val().length > 0"
+            },
+            "completed": {
+              ".validate": "newData.isBoolean()"
+            },
+            "createdAt": {
+              ".validate": "newData.isString() && newData.val().matches(/^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}.*Z$/)"
+            },
+            "updatedAt": {
+              ".validate": "newData.isString() && newData.val().matches(/^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}.*Z$/)"
+            },
+            "order": {
+              ".validate": "newData.isNumber() && newData.val() >= 0"
+            },
+            "favorite": {
+              ".validate": "newData.isBoolean()"
+            },
+            "subtasks": {
+              "$subtaskId": {
+                ".validate": "newData.hasChildren(['id', 'text', 'completed', 'createdAt'])",
+                "id": {
+                  ".validate": "newData.isString() && newData.val().length > 0"
+                },
+                "text": {
+                  ".validate": "newData.isString() && newData.val().length > 0"
+                },
+                "completed": {
+                  ".validate": "newData.isBoolean()"
+                },
+                "createdAt": {
+                  ".validate": "newData.isString() && newData.val().matches(/^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}.*Z$/)"
+                },
+                "updatedAt": {
+                  ".validate": "newData.isString() && newData.val().matches(/^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}.*Z$/)"
+                }
+              }
+            },
+            "dueDate": {
+              ".validate": "!newData.exists() || (newData.isString() && newData.val().matches(/^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}.*Z$/))"
+            },
+            "tags": {
+              ".validate": "newData.hasChildren()",
+              "$tagId": {
+                ".validate": "newData.isString()"
+              }
+            }
+          }
+        },
+        "createdAt": {
+          ".validate": "newData.isString() && newData.val().matches(/^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}.*Z$/)"
+        },
+        "updatedAt": {
+          ".validate": "newData.isString() && newData.val().matches(/^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}.*Z$/)"
+        },
+        "order": {
+          ".validate": "newData.isNumber() && newData.val() >= 0"
+        },
+        "favorite": {
+          ".validate": "newData.isBoolean()"
+        },
+        "isArchived": {
+          ".validate": "newData.isBoolean()"
+        }
+      }
+    },
+    "_connection_test": {
+      ".write": true,
+      ".validate": "newData.isString()"
+    }
+  }
+}

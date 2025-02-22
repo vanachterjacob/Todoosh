@@ -6,6 +6,12 @@ class List {
         this.createdAt = new Date().toISOString();
         this.order = 0;
         this.favorite = false;
+        this.isArchived = false;
+
+        // Validate the newly created list
+        if (!Validator.validateList(this)) {
+            throw new Error('Invalid list construction');
+        }
     }
 
     addTodo(text) {
@@ -14,31 +20,45 @@ class List {
             text,
             completed: false,
             createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
             order: this.todos.length,
             favorite: false,
-            subtasks: []  // Always initialize as empty array
+            subtasks: [],
+            tags: []
         };
-        this.todos.push(todo);
-        return todo;
+
+        // Validate the new todo
+        const validTodo = Validator.validateTodo(todo);
+        if (!validTodo) {
+            throw new Error('Invalid todo creation');
+        }
+
+        this.todos.push(validTodo);
+        return validTodo;
     }
 
     addSubtask(todoId, text) {
         const todo = this.todos.find(todo => todo.id === todoId);
         if (todo) {
-            if (!Array.isArray(todo.subtasks)) {
-                todo.subtasks = [];
-            }
-
             const subtask = {
                 id: Date.now().toString(),
                 text,
                 completed: false,
                 createdAt: new Date().toISOString(),
-                order: todo.subtasks.length,
-                parent: todoId
+                updatedAt: new Date().toISOString()
             };
-            todo.subtasks.push(subtask);
-            return subtask;
+
+            // Validate the new subtask
+            const validSubtask = Validator.validateSubtask(subtask);
+            if (!validSubtask) {
+                throw new Error('Invalid subtask creation');
+            }
+
+            if (!Array.isArray(todo.subtasks)) {
+                todo.subtasks = [];
+            }
+            todo.subtasks.push(validSubtask);
+            return validSubtask;
         }
         return null;
     }
@@ -167,26 +187,34 @@ class List {
     }
 
     toJSON() {
-        return {
+        const json = {
             id: this.id,
             name: this.name,
             todos: this.todos,
             createdAt: this.createdAt,
+            updatedAt: new Date().toISOString(),
             order: this.order,
-            favorite: this.favorite
+            favorite: this.favorite,
+            isArchived: this.isArchived
         };
+
+        return Validator.validateList(json) || json;
     }
 
     static fromJSON(json) {
-        const list = new List(json.name, json.id);
-        // Ensure todos is an array and each todo has a subtasks array
-        list.todos = Array.isArray(json.todos) ? json.todos.map(todo => ({
-            ...todo,
-            subtasks: Array.isArray(todo.subtasks) ? todo.subtasks : []
-        })) : [];
-        list.createdAt = json.createdAt || new Date().toISOString();
-        list.order = typeof json.order === 'number' ? json.order : 0;
-        list.favorite = !!json.favorite;
+        // Validate the input JSON
+        const validJson = Validator.validateList(json);
+        if (!validJson) {
+            throw new Error('Invalid list JSON data');
+        }
+
+        const list = new List(validJson.name, validJson.id);
+        list.todos = validJson.todos;
+        list.createdAt = validJson.createdAt;
+        list.updatedAt = validJson.updatedAt;
+        list.order = validJson.order;
+        list.favorite = validJson.favorite;
+        list.isArchived = validJson.isArchived;
         return list;
     }
 } 

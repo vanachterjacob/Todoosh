@@ -111,6 +111,13 @@ class TodoApp {
         this.listInput = document.getElementById('listInput');
         this.addListButton = document.getElementById('addList');
         this.currentListName = document.getElementById('currentListName');
+
+        // Theme toggle
+        const themeToggleElement = document.getElementById('themeToggle');
+        if (themeToggleElement) {
+            this.themeToggle = new ThemeToggle(themeToggleElement);
+            this.themeToggle.init();
+        }
     }
 
     setupEventListeners() {

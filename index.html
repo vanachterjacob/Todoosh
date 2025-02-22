@@ -52,20 +52,46 @@
         </main>
     </div>
 
+    <div id="themeToggle"></div>
+
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-    <script src="firebase-config.js"></script>
+    <script src="config/firebase/firebase-config.js"></script>
 
     <!-- Application Scripts -->
+    <!-- Core Utilities -->
+    <script src="src/js/utils/constants.js"></script>
+    <script src="src/js/utils/errorBoundary.js"></script>
+    <script src="src/js/utils/validator.js"></script>
     <script src="src/js/utils/sanitizer.js"></script>
-    <script src="src/js/models/List.js"></script>
+
+    <!-- Base Components -->
+    <script src="src/js/components/base/Component.js"></script>
+    <script src="src/js/components/base/FormComponent.js"></script>
+
+    <!-- Services -->
+    <script src="src/js/services/BaseService.js"></script>
     <script src="src/js/services/StorageService.js"></script>
     <script src="src/js/services/FirebaseService.js"></script>
     <script src="src/js/services/DragDropService.js"></script>
-    <script src="src/js/ui/ListRenderer.js"></script>
-    <script src="src/js/ui/TodoListRenderer.js"></script>
+
+    <!-- Models -->
+    <script src="src/js/models/List.js"></script>
+
+    <!-- Components -->
+    <script src="src/js/components/AppName.js"></script>
     <script src="src/js/components/ThemeToggle.js"></script>
+    <script src="src/js/components/SyncStatus.js"></script>
+    <script src="src/js/components/todo/TodoContainer.js"></script>
+    <script src="src/js/components/todo/TodoItem.js"></script>
+    <script src="src/js/components/todo/TodoInput.js"></script>
+
+    <!-- UI Renderers -->
+    <script src="src/js/ui/TodoListRenderer.js"></script>
+    <script src="src/js/ui/ListRenderer.js"></script>
+
+    <!-- Main Application -->
     <script src="src/app.js"></script>
     <script>
         // Wait for all scripts to load before initializing
