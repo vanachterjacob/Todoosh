@@ -99,7 +99,9 @@
     border: 1px solid var(--color-border);
     border-radius: var(--radius-md);
     margin-bottom: var(--spacing-sm);
-    transition: var(--transition-normal);
+    transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
+    transform-origin: center;
+    will-change: transform, opacity;
 }
 
 .todo-item__content {
@@ -321,20 +323,56 @@
     cursor: grab;
     color: var(--color-text-light);
     opacity: 0;
-    transition: var(--transition-quick);
+    transition: all 0.2s ease;
     padding: 0 var(--spacing-xs);
+    transform: translateX(-4px);
 }
 
 .todo-item:hover .drag-handle {
-    opacity: 0.5;
+    opacity: 0.7;
+    transform: translateX(0);
+}
+
+.todo-item:hover .drag-handle:hover {
+    opacity: 1;
+    color: var(--color-primary);
 }
 
 .todo-item.dragging {
-    opacity: 0.5;
+    opacity: 0.8;
+    box-shadow: var(--shadows-md);
+    transform: scale(1.02);
+    background: var(--color-background-light);
+    cursor: grabbing;
+    z-index: 1000;
 }
 
-.todo-item.dragging .drag-handle {
-    cursor: grabbing;
+.todo-item.drop-above {
+    transform: translateY(-4px);
+    border-top: 2px solid var(--color-primary);
+    margin-top: -2px;
+    transition: transform 0.15s ease;
+}
+
+.todo-item.drop-below {
+    transform: translateY(4px);
+    border-bottom: 2px solid var(--color-primary);
+    margin-bottom: -2px;
+    transition: transform 0.15s ease;
+}
+
+.drop-indicator {
+    height: 2px;
+    background: var(--color-primary);
+    position: absolute;
+    left: 0;
+    right: 0;
+    transform: scaleX(0);
+    transition: transform 0.2s ease;
+}
+
+.drop-indicator.active {
+    transform: scaleX(1);
 }
 
 /* Completed states */
@@ -342,6 +380,7 @@
 .todo-content.completed .subtask-text {
     text-decoration: line-through;
     color: var(--text-light);
+    transition: all 0.3s ease;
 }
 
 .todo-item__checkbox-wrapper {
@@ -799,4 +838,56 @@
 
 .todo-item__subtask-indicator.collapsed svg {
     transform: rotate(-90deg);
+}
+
+/* List Animation */
+.todo-list {
+    transition: padding 0.3s ease;
+}
+
+.todo-list.dragging-active {
+    padding-bottom: var(--spacing-lg);
+    background: var(--color-background-light);
+    border-radius: var(--radius-md);
+}
+
+/* Completion Animation */
+.todo-item__checkbox:checked+.todo-item__checkbox-custom {
+    transform: scale(1.1);
+    transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.todo-item__checkbox:checked+.todo-item__checkbox-custom::after {
+    animation: checkmark 0.2s ease-in-out forwards;
+}
+
+@keyframes checkmark {
+    0% {
+        transform: translate(-50%, -50%) scale(0);
+        opacity: 0;
+    }
+
+    50% {
+        transform: translate(-50%, -50%) scale(1.2);
+    }
+
+    100% {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 1;
+    }
+}
+
+/* Favorite Animation */
+.todo-favorite {
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275),
+        color 0.3s ease;
+}
+
+.todo-favorite:hover {
+    transform: scale(1.2);
+}
+
+.todo-favorite.active {
+    color: var(--color-warning);
+    transform: scale(1.1);
 }
