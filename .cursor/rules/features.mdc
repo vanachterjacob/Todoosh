@@ -6,10 +6,14 @@ globs:
 description: 
 globs: 
 ---
+---
+description: 
+globs: 
+---
 {
   "features": {
     "lists": {
-      "operations": ["create", "read", "update", "delete", "reorder", "rename", "favorite", "filter"],
+      "operations": ["create", "read", "update", "delete", "rename", "favorite", "filter"],
       "properties": {
         "id": "UUID v4 identifier",
         "name": "User-defined list name",
@@ -27,7 +31,8 @@ globs:
             "trigger": "Star button",
             "icon": "★",
             "color": "#FFD700",
-            "visibility": "Progressive disclosure"
+            "visibility": "Progressive disclosure",
+            "position": "Left of list name"
           },
           "edit": {
             "type": "inline",
@@ -41,21 +46,12 @@ globs:
             "confirmation": "Required for non-empty lists",
             "icon": "×",
             "color": "danger"
-          },
-          "drag": {
-            "type": "handle",
-            "trigger": "Drag handle",
-            "icon": "⋮⋮",
-            "visibility": "Progressive disclosure",
-            "cursor": "grab/grabbing",
-            "position": "Left edge"
           }
         },
         "states": {
           "normal": "Default view with name and count",
           "editing": "Inline name editing",
           "active": "Currently selected list",
-          "dragging": "During drag operation",
           "favorite": "Sorted to top with star",
           "archived": "Moved to archive section"
         }
@@ -198,8 +194,7 @@ globs:
     "dragAndDrop": {
       "implementation": "HTML5 Drag and Drop API",
       "features": [
-        "Drag todos within and between lists",
-        "Drag lists to reorder",
+        "Drag todos within lists",
         "Touch device support",
         "Animated drop indicators",
         "Auto-scroll during drag",

@@ -6,9 +6,9 @@ A portable, offline-first todo list manager with Firebase sync.
 
 ### Core Features
 - 📝 Create, edit, and organize todo lists
-- ⭐ Star important lists and todos
+- ⭐ Star important lists and todos (star appears on the left)
 - ✏️ Rename and delete lists with inline editing
-- 🔄 Drag and drop reordering of lists and todos with visual feedback
+- 🔄 Drag and drop reordering of todos within lists
 - 📑 Rich text subtasks with:
   - 🔢 Active task counter
   - 📊 Progress tracking
@@ -31,19 +31,18 @@ A portable, offline-first todo list manager with Firebase sync.
 - 🖼️ Adaptive favicons for all platforms and modes
 
 ### List Management Features
+- ⭐ Star lists with left-aligned favorite indicator
 - ✏️ Inline list renaming with keyboard support
 - 🗑️ List deletion with confirmation
 - 🔢 Automatic todo count display
 - 🎯 Active list highlighting
-- 🔄 Smooth drag and drop reordering with visual guides
 - 💾 Automatic sync of list changes
-- 🎯 Drag handle with progressive disclosure
 
 ### Todo Management Features
 - ⭐ Star important todos to keep them at the top
 - ✅ Mark todos as complete
 - ✏️ Edit todo text inline
-- 🔄 Drag and drop reordering
+- 🔄 Drag and drop reordering within lists
 - 🗑️ Quick todo deletion
 - 🔍 Filter by all/active/completed
 - 📑 Rich text subtasks with:

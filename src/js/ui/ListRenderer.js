@@ -40,7 +40,6 @@ class ListRenderer {
 
         const listElement = document.createElement('div');
         listElement.className = `list-item${list.id === this.app.currentListId ? ' active' : ''}`;
-        listElement.draggable = true;
         listElement.dataset.id = list.id;
         listElement.dataset.type = 'list';
 
@@ -52,13 +51,12 @@ class ListRenderer {
     createListHTML(list) {
         return `
             <div class="list-item__content">
-                <div class="drag-handle">⋮⋮</div>
+                <button class="list-item__action list-item__action--favorite${list.favorite ? ' active' : ''}" title="Toggle favorite"></button>
                 <span class="list-item__name">${list.name || 'Untitled List'}</span>
                 <span class="list-item__count">${list.todos.length}</span>
             </div>
             <input type="text" class="list-item__edit" value="${list.name || ''}" placeholder="List name">
             <div class="list-item__actions">
-                <button class="list-item__action list-item__action--favorite${list.favorite ? ' active' : ''}" title="Toggle favorite"></button>
                 <button class="list-item__action list-item__action--edit" title="Rename list"></button>
                 <button class="list-item__action list-item__action--delete" title="Delete list"></button>
             </div>`;
@@ -72,9 +70,6 @@ class ListRenderer {
         listElement.querySelector('.list-item__edit').addEventListener('mousedown', e => {
             e.stopPropagation();
         });
-
-        // Drag handling
-        this.setupDragHandling(listElement);
 
         // Favorite button event
         listElement.querySelector('.list-item__action--favorite').addEventListener('click', (e) => {
@@ -95,18 +90,6 @@ class ListRenderer {
 
         // Delete functionality
         this.setupDeleteFunctionality(listElement, list);
-    }
-
-    setupDragHandling(listElement) {
-        listElement.addEventListener('mousedown', e => {
-            const isDragHandle = e.target.classList.contains('drag-handle');
-            const isMainContent = e.target.closest('.list-item__content') && !e.target.closest('.list-item__actions');
-            listElement.draggable = isDragHandle || isMainContent;
-        });
-
-        listElement.addEventListener('mouseup', () => {
-            listElement.draggable = true;
-        });
     }
 
     setupEditFunctionality(listElement, list) {

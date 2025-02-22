@@ -135,19 +135,7 @@ class TodoApp {
     }
 
     setupDragAndDrop() {
-        // List drag and drop
-        this.listContainer.addEventListener('dragstart', (e) => {
-            this.dragDropService.handleDragStart(e, 'list');
-        });
-        this.listContainer.addEventListener('dragend', (e) => {
-            this.dragDropService.handleDragEnd(e);
-        });
-        this.listContainer.addEventListener('dragover', (e) => {
-            this.dragDropService.handleDragOver(e);
-        });
-        this.listContainer.addEventListener('drop', (e) => {
-            this.dragDropService.handleDrop(e);
-        });
+        // Remove list drag and drop event listeners
 
         // Todo drag and drop
         this.todoList.addEventListener('dragstart', (e) => {
