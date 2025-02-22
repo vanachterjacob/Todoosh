@@ -10,6 +10,10 @@ globs:
 description: 
 globs: 
 ---
+---
+description: 
+globs: 
+---
 {
   "features": {
     "lists": {
@@ -198,8 +202,29 @@ globs:
         "Touch device support",
         "Animated drop indicators",
         "Auto-scroll during drag",
-        "Drag preview with transform"
+        "Drag preview with transform",
+        "Visual drop zone indicators",
+        "Order-based positioning system",
+        "Consistent data and visual ordering"
       ],
+      "ordering": {
+        "system": "Numeric order property",
+        "behavior": {
+          "visual": "DOM position reflects data order",
+          "data": "Sequential order values (0-based)",
+          "updates": "Automatic resequencing on drop",
+          "direction": "Supports both upward and downward movement"
+        },
+        "dropZones": {
+          "above": "Upper 50% of target item",
+          "below": "Lower 50% of target item",
+          "indicators": {
+            "type": "CSS classes",
+            "styles": ["drop-above", "drop-below"],
+            "animation": "Transform with smooth transition"
+          }
+        }
+      },
       "persistence": {
         "local": "Immediate localStorage update",
         "remote": "Debounced Firebase sync",

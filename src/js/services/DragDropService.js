@@ -45,7 +45,7 @@ class DragDropService {
             this.draggedElement.classList.remove('dragging');
             this.draggedElement = null;
             this.draggedType = null;
-            this.removeDropIndicator();
+            this.removeDropIndicators();
 
             // Remove dragging class from container
             const containers = ['listContainer', 'todoList'];
@@ -65,65 +65,95 @@ class DragDropService {
         event.dataTransfer.dropEffect = 'move';
 
         const target = event.target.closest(`[data-type="${this.draggedType}"]`);
-        if (!target || target === this.draggedElement) return;
+        if (!target || target === this.draggedElement) {
+            this.removeDropIndicators();
+            return;
+        }
+
+        // Clean up previous indicators if we're over a new target
+        if (this.lastDropTarget && this.lastDropTarget !== target) {
+            this.lastDropTarget.classList.remove('drop-above', 'drop-below');
+        }
 
         const targetRect = target.getBoundingClientRect();
-        const targetY = targetRect.top + targetRect.height / 2;
+        const dropZone = this.calculateDropZone(event.clientY, targetRect);
 
-        if (event.clientY < targetY) {
-            target.classList.add('drop-above');
-            target.classList.remove('drop-below');
-        } else {
-            target.classList.add('drop-below');
-            target.classList.remove('drop-above');
-        }
+        // Remove existing indicators
+        target.classList.remove('drop-above', 'drop-below');
+
+        // Add new indicator based on drop zone
+        target.classList.add(dropZone === 'above' ? 'drop-above' : 'drop-below');
+
+        this.lastDropTarget = target;
+        this.lastClientY = event.clientY;
     }
 
     handleDrop(event) {
         if (!this.draggedElement) return;
 
         event.preventDefault();
+        this.removeDropIndicators();
+
         const target = event.target.closest(`[data-type="${this.draggedType}"]`);
         if (!target || target === this.draggedElement) return;
 
-        // Remove drop indicators
-        target.classList.remove('drop-above', 'drop-below');
-
-        // Get the container and all items
         const container = target.parentElement;
-        if (!container) return; // Guard against null container
+        if (!container) return;
 
         const items = Array.from(container.children).filter(
             item => item.dataset && item.dataset.type === this.draggedType
         );
 
-        // Calculate the new index
         const draggedIndex = items.indexOf(this.draggedElement);
-        let targetIndex = items.indexOf(target);
+        const targetIndex = items.indexOf(target);
+        const draggedOrder = parseInt(this.draggedElement.dataset.order);
+        const targetOrder = parseInt(target.dataset.order);
 
-        if (draggedIndex === -1 || targetIndex === -1) return; // Guard against invalid indices
+        if (draggedIndex === -1 || targetIndex === -1) return;
 
         const targetRect = target.getBoundingClientRect();
-        const targetY = targetRect.top + targetRect.height / 2;
+        const dropZone = this.calculateDropZone(event.clientY, targetRect);
 
-        if (event.clientY > targetY) {
-            targetIndex++;
+        // Calculate new order based on target's order
+        let newOrder = targetOrder;
+        if (dropZone === 'below') {
+            newOrder = targetOrder + 1;
         }
 
-        // Adjust target index if moving down
-        if (draggedIndex < targetIndex) {
-            targetIndex--;
-        }
+        // Ensure index is within bounds
+        newOrder = Math.max(0, Math.min(newOrder, items.length - 1));
 
-        // Call the onDrop callback with the relevant information
         if (this.onDrop) {
             this.onDrop(
                 this.draggedElement.dataset.id,
                 target.dataset.id,
-                targetIndex,
+                newOrder,
                 this.draggedType
             );
         }
+    }
+
+    calculateDropZone(clientY, targetRect) {
+        const threshold = targetRect.top + (targetRect.height * 0.5);
+        return clientY < threshold ? 'above' : 'below';
+    }
+
+    removeDropIndicators() {
+        // Clean up all drop indicators in the container
+        const container = this.draggedElement?.parentElement;
+        if (container) {
+            container.querySelectorAll(`[data-type="${this.draggedType}"]`).forEach(item => {
+                item.classList.remove('drop-above', 'drop-below');
+            });
+        }
+
+        if (this.lastDropTarget) {
+            this.lastDropTarget.classList.remove('drop-above', 'drop-below');
+            this.lastDropTarget = null;
+        }
+
+        this.removeDropIndicator();
+        this.lastClientY = 0;
     }
 
     updateDropIndicator(target, clientY) {

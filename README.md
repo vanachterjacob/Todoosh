@@ -42,7 +42,13 @@ A portable, offline-first todo list manager with Firebase sync.
 - ⭐ Star important todos to keep them at the top
 - ✅ Mark todos as complete
 - ✏️ Edit todo text inline
-- 🔄 Drag and drop reordering within lists
+- 🔄 Drag and drop reordering within lists:
+  - 🎯 Precise drop zone indicators (above/below)
+  - 📊 Consistent ordering between visual and data positions
+  - 🔄 Smooth animations during drag and drop
+  - 🎨 Visual feedback with transform effects
+  - 📱 Touch device support
+  - 🔁 Auto-scroll during drag operations
 - 🗑️ Quick todo deletion
 - 🔍 Filter by all/active/completed
 - 📑 Rich text subtasks with:

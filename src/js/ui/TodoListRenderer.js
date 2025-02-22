@@ -17,11 +17,14 @@ class TodoListRenderer {
             return true;
         });
 
+        // First sort by order, then by favorite status
         filteredTodos
             .sort((a, b) => {
+                // First sort by favorite status
                 if (a.favorite !== b.favorite) {
                     return b.favorite ? 1 : -1;
                 }
+                // Then sort by order
                 return a.order - b.order;
             })
             .forEach(todo => this.renderTodoItem(todo, currentList));
@@ -33,6 +36,7 @@ class TodoListRenderer {
         todoElement.draggable = true;
         todoElement.dataset.id = todo.id;
         todoElement.dataset.type = 'todo';
+        todoElement.dataset.order = todo.order;
 
         todoElement.innerHTML = this.createTodoHTML(todo);
         this.setupTodoEventListeners(todoElement, todo, currentList);

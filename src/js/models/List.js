@@ -82,10 +82,47 @@ class List {
         const todo = this.todos.find(todo => todo.id === todoId);
         if (!todo) return;
 
+        const oldOrder = todo.order;
+        const isMovingDown = newOrder > oldOrder;
+
+        // Remove the todo from its current position
         this.todos = this.todos.filter(t => t.id !== todoId);
+
+        // Update orders of todos between old and new positions
+        let affectedTodos = [];
+        this.todos.forEach(t => {
+            const originalOrder = t.order;
+            if (isMovingDown) {
+                if (t.order > oldOrder && t.order <= newOrder) {
+                    t.order--;
+                    affectedTodos.push({
+                        id: t.id,
+                        text: t.text.slice(0, 30) + '...',
+                        from: originalOrder,
+                        to: t.order
+                    });
+                }
+            } else {
+                if (t.order >= newOrder && t.order < oldOrder) {
+                    t.order++;
+                    affectedTodos.push({
+                        id: t.id,
+                        text: t.text.slice(0, 30) + '...',
+                        from: originalOrder,
+                        to: t.order
+                    });
+                }
+            }
+        });
+
+        // Set the new order for the dragged todo
+        todo.order = newOrder;
+
+        // Insert the todo at its new position
         this.todos.splice(newOrder, 0, todo);
 
-        // Update order property for all todos
+        // Ensure orders are sequential and correct
+        this.todos.sort((a, b) => a.order - b.order);
         this.todos.forEach((todo, index) => {
             todo.order = index;
         });
