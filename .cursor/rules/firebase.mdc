@@ -1,0 +1,77 @@
+---
+description: 
+globs: 
+---
+{
+  "firebase": {
+    "version": "8.10.1",
+    "reason": "Using Firebase 8.x for file:// protocol and global object support",
+    "config": {
+      "location": "firebase-config.js",
+      "setup": "Global firebase object with manual initialization",
+      "database": {
+        "region": "europe-west1",
+        "persistence": true,
+        "cacheSize": "50MB"
+      }
+    },
+    "sync_strategy": {
+      "connection": {
+        "test": "_connection_test node write",
+        "timeout": "5 seconds",
+        "retry": {
+          "attempts": 3,
+          "backoff": "exponential"
+        }
+      },
+      "offline_support": {
+        "persistence": "enablePersistence()",
+        "caching": "Service Worker for static assets",
+        "fallback": "localStorage with versioning"
+      },
+      "data_flow": {
+        "read": {
+          "initial": "Load from localStorage",
+          "background": "Sync with Firebase when online",
+          "realtime": "Listen for remote changes"
+        },
+        "write": {
+          "local": "Update localStorage immediately",
+          "remote": "Debounced Firebase update (500ms)",
+          "conflict": "Last write wins with timestamp"
+        }
+      },
+      "error_handling": {
+        "connection": {
+          "timeout": "Fall back to localStorage",
+          "permission": "Show auth required message",
+          "quota": "Clear old data when near limit"
+        },
+        "sync": {
+          "conflict": "Use server timestamp as source of truth",
+          "invalid_data": "Revert to last known good state",
+          "quota_exceeded": "Clear old cached data"
+        }
+      }
+    },
+    "security": {
+      "rules": {
+        "read": "auth != null",
+        "write": "auth != null",
+        "validate": "newData.hasChildren(['id', 'updatedAt'])"
+      },
+      "api_key": {
+        "restrictions": [
+          "HTTP referrer check",
+          "Application restrictions",
+          "API scope limitations"
+        ]
+      },
+      "data_validation": {
+        "schema": "JSON Schema validation",
+        "sanitization": "HTML content sanitization",
+        "timestamps": "Server-side timestamps"
+      }
+    }
+  }
+} 

@@ -1,0 +1,24 @@
+---
+description: 
+globs: 
+---
+
+# Your rule content
+
+- You can @ files here
+- You can use markdown but dont have to
+
+{
+  "scratchpad": {
+    "enabled": true,
+    "path": "scratchpad.md",
+    "defaultContent": "# Todoosh Scratchpad\n\nUse this space for quick notes and temporary content.\n\n## Quick Notes\n\n- \n\n## Temporary Code\n\n```javascript\n// Your code here\n```"
+  },
+  "general": {
+    "formatOnSave": true,
+    "trimTrailingWhitespace": true,
+    "insertFinalNewline": true,
+    "tabSize": 2,
+    "indentSize": 2
+  }
+}

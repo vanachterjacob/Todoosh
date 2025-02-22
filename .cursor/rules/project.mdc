@@ -1,0 +1,92 @@
+---
+description: 
+globs: 
+---
+{
+  "project": {
+    "name": "Todoosh",
+    "description": "A portable, offline-first todo list manager with Firebase sync",
+    "version": "1.0.0",
+    "branding": {
+      "logo": {
+        "type": "text",
+        "font": "'Fira Code', 'Consolas', monospace",
+        "gradient": {
+          "colors": ["primary", "accent"],
+          "angle": "120deg"
+        },
+        "cursor": {
+          "animation": "blink",
+          "duration": "1.2s",
+          "character": "_"
+        },
+        "subtitle": "offline-first task manager"
+      },
+      "favicons": {
+        "svg": {
+          "file": "favicon.svg",
+          "size": "32x32",
+          "features": [
+            "Gradient background",
+            "Checkmark icon",
+            "Dark/light mode support"
+          ],
+          "colors": {
+            "gradient": {
+              "start": "primary (#3B82F6)",
+              "end": "accent (#8B5CF6)"
+            },
+            "icon": "white"
+          }
+        },
+        "png": {
+          "file": "favicon.png",
+          "size": "32x32",
+          "features": [
+            "Fallback for older browsers",
+            "Matches SVG design"
+          ]
+        },
+        "apple": {
+          "file": "apple-touch-icon.png",
+          "size": "180x180",
+          "features": [
+            "iOS home screen icon",
+            "High resolution",
+            "No transparency"
+          ]
+        }
+      }
+    },
+    "requirements": {
+      "portability": {
+        "file_protocol": "Must work with file:// URLs",
+        "offline": "Full functionality without internet",
+        "storage": "localStorage with versioning"
+      },
+      "performance": {
+        "initial_load": "Under 2 seconds",
+        "interaction": "Under 100ms response",
+        "animation": "60fps smooth transitions"
+      },
+      "compatibility": {
+        "browsers": [
+          "Chrome 80+",
+          "Firefox 75+",
+          "Safari 13+",
+          "Edge 80+"
+        ],
+        "devices": [
+          "Desktop (minimum 1024x768)",
+          "Tablet (minimum 768x1024)",
+          "Mobile (minimum 320x568)"
+        ]
+      },
+      "security": {
+        "data": "Local encryption for sensitive data",
+        "api": "Firebase security rules",
+        "xss": "Content sanitization"
+      }
+    }
+  }
+} 

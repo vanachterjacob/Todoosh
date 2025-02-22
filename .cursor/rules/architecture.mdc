@@ -1,0 +1,56 @@
+---
+description: 
+globs: 
+---
+{
+  "architecture": {
+    "files": {
+      "index.html": "Main entry point with Firebase initialization and PWA support",
+      "src/app.js": "Main application logic with class-based architecture",
+      "src/components/": "React-like web components for UI elements",
+      "src/js/": "Core JavaScript modules and utilities",
+      "src/services/": "Service layer for Firebase, Storage, and other core functionalities",
+      "src/styles/": "CSS modules and theme configuration",
+      "src/utils/": "Shared utilities and helper functions",
+      "firebase-config.js": "Firebase initialization and configuration",
+      "manifest.json": "PWA configuration with file:// protocol support",
+      "database.rules.json": "Firebase Realtime Database security rules",
+      "sw.js": "Service Worker for offline functionality"
+    },
+    "data": {
+      "local": "Uses localStorage with JSON serialization",
+      "cloud": "Uses Firebase Realtime Database with offline persistence",
+      "sync": "Bidirectional sync with conflict resolution",
+      "validation": "Type checking and data validation throughout"
+    }
+  },
+  "important_decisions": {
+    "firebase_setup": [
+      "Using Firebase 8.10.1 for file:// protocol support",
+      "Global script loading pattern",
+      "No module bundler required",
+      "Offline persistence enabled",
+      "Connection testing via _connection_test node"
+    ],
+    "offline_first": [
+      "Service Worker for static asset caching",
+      "localStorage as primary data store",
+      "Firebase as secondary with sync",
+      "Optimistic UI updates",
+      "Graceful degradation when offline"
+    ],
+    "security": [
+      "HTTPS recommended but not required",
+      "Permissive Firebase rules for development",
+      "API key restrictions for production",
+      "XSS prevention in HTML content"
+    ],
+    "data_integrity": [
+      "JSON schema validation",
+      "Type checking on data operations",
+      "Default values for missing fields",
+      "Safe property access patterns",
+      "Error boundaries for async operations"
+    ]
+  }
+}

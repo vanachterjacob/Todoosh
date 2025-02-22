@@ -1,0 +1,208 @@
+---
+description: 
+globs: 
+---
+{
+  "features": {
+    "lists": {
+      "operations": ["create", "read", "update", "delete", "reorder", "rename", "favorite", "filter"],
+      "properties": {
+        "id": "UUID v4 identifier",
+        "name": "User-defined list name",
+        "todos": "Array of todo items",
+        "createdAt": "ISO timestamp",
+        "updatedAt": "ISO timestamp for sync conflict resolution",
+        "order": "Position in lists array",
+        "favorite": "Boolean favorite status",
+        "isArchived": "Boolean archive status"
+      },
+      "ui": {
+        "actions": {
+          "favorite": {
+            "type": "toggle",
+            "trigger": "Star button",
+            "icon": "★",
+            "color": "#FFD700",
+            "visibility": "Progressive disclosure"
+          },
+          "edit": {
+            "type": "inline",
+            "trigger": "Edit button or double-click",
+            "icon": "✎",
+            "color": "primary"
+          },
+          "delete": {
+            "type": "two-step",
+            "trigger": "Delete button",
+            "confirmation": "Required for non-empty lists",
+            "icon": "×",
+            "color": "danger"
+          },
+          "drag": {
+            "type": "handle",
+            "trigger": "Drag handle",
+            "icon": "⋮⋮",
+            "visibility": "Progressive disclosure",
+            "cursor": "grab/grabbing",
+            "position": "Left edge"
+          }
+        },
+        "states": {
+          "normal": "Default view with name and count",
+          "editing": "Inline name editing",
+          "active": "Currently selected list",
+          "dragging": "During drag operation",
+          "favorite": "Sorted to top with star",
+          "archived": "Moved to archive section"
+        }
+      }
+    },
+    "todos": {
+      "operations": ["create", "read", "update", "delete", "reorder", "favorite", "complete"],
+      "properties": {
+        "id": "UUID v4 identifier",
+        "text": "User-defined todo text",
+        "completed": "Boolean completion status",
+        "createdAt": "ISO timestamp",
+        "updatedAt": "ISO timestamp for sync",
+        "order": "Position in todos array",
+        "favorite": "Boolean favorite status",
+        "subtasks": "Array of subtask objects",
+        "dueDate": "Optional ISO date string",
+        "tags": "Array of tag strings"
+      },
+      "filters": ["all", "active", "completed", "favorite", "due-today", "overdue"],
+      "ui": {
+        "actions": {
+          "favorite": {
+            "type": "toggle",
+            "trigger": "Star button",
+            "icon": "★",
+            "color": "#FFD700",
+            "visibility": "Progressive disclosure"
+          },
+          "edit": {
+            "type": "inline",
+            "trigger": "Edit button or text click",
+            "icon": "✎",
+            "color": "primary"
+          },
+          "delete": {
+            "type": "immediate",
+            "trigger": "Delete button",
+            "icon": "×",
+            "color": "danger"
+          },
+          "complete": {
+            "type": "toggle",
+            "trigger": "Checkbox",
+            "animation": "Smooth transition",
+            "propagation": "Updates subtask status"
+          }
+        }
+      }
+    },
+    "subtasks": {
+      "operations": ["create", "read", "update", "delete", "complete"],
+      "properties": {
+        "id": "UUID v4 identifier",
+        "text": "Rich text content",
+        "completed": "Boolean completion status",
+        "createdAt": "ISO timestamp",
+        "updatedAt": "ISO timestamp for sync"
+      },
+      "ui": {
+        "actions": {
+          "edit": {
+            "type": "wysiwyg",
+            "trigger": "Edit button or double-click",
+            "icon": "✎",
+            "color": "primary"
+          },
+          "delete": {
+            "type": "immediate",
+            "trigger": "Delete button",
+            "icon": "×",
+            "color": "danger"
+          }
+        },
+        "editor": {
+          "type": "WYSIWYG",
+          "toolbar": {
+            "position": "Top",
+            "buttons": [
+              {
+                "command": "bold",
+                "icon": "B",
+                "title": "Bold"
+              },
+              {
+                "command": "italic",
+                "icon": "I",
+                "title": "Italic"
+              },
+              {
+                "command": "underline",
+                "icon": "U",
+                "title": "Underline"
+              },
+              {
+                "command": "insertUnorderedList",
+                "icon": "•",
+                "title": "Bullet List"
+              },
+              {
+                "command": "insertOrderedList",
+                "icon": "1.",
+                "title": "Numbered List"
+              },
+              {
+                "command": "createLink",
+                "icon": "🔗",
+                "title": "Add Link"
+              }
+            ]
+          }
+        }
+      }
+    },
+    "dragAndDrop": {
+      "implementation": "HTML5 Drag and Drop API",
+      "features": [
+        "Drag todos within and between lists",
+        "Drag lists to reorder",
+        "Touch device support",
+        "Animated drop indicators",
+        "Auto-scroll during drag",
+        "Drag preview with transform"
+      ],
+      "persistence": {
+        "local": "Immediate localStorage update",
+        "remote": "Debounced Firebase sync",
+        "offline": "Works without connection"
+      }
+    },
+    "sync": {
+      "status": {
+        "states": ["online", "offline", "error", "syncing"],
+        "ui": {
+          "indicator": {
+            "position": "Bottom right",
+            "type": "Icon with status",
+            "colors": {
+              "online": "success",
+              "offline": "warning",
+              "error": "danger",
+              "syncing": "primary"
+            }
+          }
+        }
+      },
+      "storage": {
+        "local": "localStorage with versioning",
+        "remote": "Firebase RTDB",
+        "sync": "Bidirectional with conflict resolution"
+      }
+    }
+  }
+} 
