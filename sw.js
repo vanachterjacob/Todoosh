@@ -6,6 +6,9 @@ const ASSETS_TO_CACHE = [
     '/app.js',
     '/firebase-config.js',
     '/manifest.json',
+    '/public/assets/icons/favicon.svg',
+    '/public/assets/icons/favicon.png',
+    '/public/assets/icons/apple-touch-icon.png',
     'https://www.gstatic.com/firebasejs/9.x.x/firebase-app.js',
     'https://www.gstatic.com/firebasejs/9.x.x/firebase-database.js'
 ];
