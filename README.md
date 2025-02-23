@@ -13,7 +13,6 @@ A portable, offline-first todo list manager with Firebase sync.
   - 🔢 Active task counter
   - 📊 Progress tracking
   - 🔽 Collapsible sections
-  - ✨ WYSIWYG editing
 - 💾 Works offline with local storage
 - 🔄 Real-time sync with Firebase
 - 🌐 Cross-browser data persistence

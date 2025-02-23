@@ -14,6 +14,10 @@ globs:
 description: 
 globs: 
 ---
+---
+description: 
+globs: 
+---
 {
   "features": {
     "lists": {
@@ -138,10 +142,56 @@ globs:
         },
         "actions": {
           "edit": {
-            "type": "wysiwyg",
+            "type": "rich-text",
             "trigger": "Edit button or double-click",
             "icon": "✎",
-            "color": "primary"
+            "color": "primary",
+            "toolbar": {
+              "position": "Above text",
+              "visibility": "Only during editing",
+              "transition": "Smooth fade",
+              "buttons": [
+                {
+                  "command": "bold",
+                  "icon": "B",
+                  "title": "Bold",
+                  "shortcut": "Ctrl+B"
+                },
+                {
+                  "command": "italic",
+                  "icon": "I",
+                  "title": "Italic",
+                  "shortcut": "Ctrl+I"
+                },
+                {
+                  "command": "underline",
+                  "icon": "U",
+                  "title": "Underline",
+                  "shortcut": "Ctrl+U"
+                },
+                {
+                  "command": "insertUnorderedList",
+                  "icon": "•",
+                  "title": "Bullet List"
+                },
+                {
+                  "command": "insertOrderedList",
+                  "icon": "1",
+                  "title": "Numbered List"
+                },
+                {
+                  "command": "createLink",
+                  "icon": "🔗",
+                  "title": "Add Link",
+                  "prompt": "Enter URL"
+                },
+                {
+                  "command": "code",
+                  "icon": "〈/〉",
+                  "title": "Code"
+                }
+              ]
+            }
           },
           "delete": {
             "type": "immediate",
@@ -156,41 +206,32 @@ globs:
           }
         },
         "editor": {
-          "type": "WYSIWYG",
-          "toolbar": {
-            "position": "Top",
-            "buttons": [
-              {
-                "command": "bold",
-                "icon": "B",
-                "title": "Bold"
-              },
-              {
-                "command": "italic",
-                "icon": "I",
-                "title": "Italic"
-              },
-              {
-                "command": "underline",
-                "icon": "U",
-                "title": "Underline"
-              },
-              {
-                "command": "insertUnorderedList",
-                "icon": "•",
-                "title": "Bullet List"
-              },
-              {
-                "command": "insertOrderedList",
-                "icon": "1.",
-                "title": "Numbered List"
-              },
-              {
-                "command": "createLink",
-                "icon": "🔗",
-                "title": "Add Link"
+          "type": "rich-text",
+          "features": {
+            "formatting": {
+              "inline": ["bold", "italic", "underline", "code"],
+              "blocks": ["unordered-list", "ordered-list"],
+              "links": {
+                "type": "url",
+                "validation": "Basic URL format",
+                "prompt": "Enter URL"
               }
-            ]
+            },
+            "toolbar": {
+              "position": "Above text",
+              "visibility": "Only during editing",
+              "states": {
+                "normal": "Hidden",
+                "editing": "Visible with active states",
+                "transitioning": "Smooth fade in/out"
+              }
+            },
+            "contentEditable": {
+              "behavior": "Native HTML5",
+              "commands": "execCommand API",
+              "selection": "Window.getSelection",
+              "focus": "Automatic on edit start"
+            }
           }
         }
       }
