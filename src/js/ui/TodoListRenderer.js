@@ -91,22 +91,6 @@ class TodoListRenderer {
                         </div>
                     </div>
                 `).join('')}
-                ${this.createWYSIWYGToolbar()}
-            </div>`;
-    }
-
-    createWYSIWYGToolbar() {
-        return `
-            <div class="wysiwyg-toolbar">
-                <button class="wysiwyg-toolbar__button" data-command="bold" title="Bold"><b>B</b></button>
-                <button class="wysiwyg-toolbar__button" data-command="italic" title="Italic"><i>I</i></button>
-                <button class="wysiwyg-toolbar__button" data-command="underline" title="Underline"><u>U</u></button>
-                <div class="wysiwyg-toolbar__separator"></div>
-                <button class="wysiwyg-toolbar__button" data-command="insertUnorderedList" title="Bullet List">•</button>
-                <button class="wysiwyg-toolbar__button" data-command="insertOrderedList" title="Numbered List">1.</button>
-                <div class="wysiwyg-toolbar__separator"></div>
-                <button class="wysiwyg-toolbar__button" data-command="createLink" title="Add Link">🔗</button>
-                <button class="wysiwyg-toolbar__button" data-command="code" title="Code">〈/〉</button>
             </div>`;
     }
 
@@ -199,23 +183,11 @@ class TodoListRenderer {
         subtasksContainer.addEventListener('click', (e) => {
             if (e.target.matches('.todo-item__action--edit')) {
                 const subtaskEl = e.target.closest('.todo-item__subtask');
-                const todoEl = subtaskEl?.closest('.todo-item');
-                if (subtaskEl && todoEl) {
-                    const todoId = todoEl.dataset.id;
-                    const subtaskId = subtaskEl.dataset.id;
-                    console.log('Editing subtask:', { todoId, subtaskId });
-                    const todoItem = this.app.todoContainer.getTodoItem(todoId);
-                    if (todoItem) {
-                        try {
-                            todoItem.setState({ editingSubtaskId: subtaskId });
-                        } catch (error) {
-                            console.error('Failed to set subtask editing state:', error);
-                            const textEl = subtaskEl.querySelector('.todo-item__text');
-                            if (textEl) {
-                                textEl.contentEditable = 'true';
-                                textEl.focus();
-                            }
-                        }
+                if (subtaskEl) {
+                    const textEl = subtaskEl.querySelector('.todo-item__text');
+                    if (textEl) {
+                        textEl.contentEditable = 'true';
+                        textEl.focus();
                     }
                 }
             }
@@ -243,45 +215,6 @@ class TodoListRenderer {
                 this.app.firebaseService.uploadData(this.app.lists);
             });
         });
-
-        // WYSIWYG toolbar
-        this.setupWYSIWYGToolbar(subtasksContainer);
-    }
-
-    setupWYSIWYGToolbar(subtasksContainer) {
-        subtasksContainer.addEventListener('click', (e) => {
-            const button = e.target.closest('.wysiwyg-toolbar__button');
-            if (!button) return;
-
-            e.preventDefault();
-            e.stopPropagation();
-
-            const command = button.dataset.command;
-            const subtaskEl = subtasksContainer.querySelector('.todo-item__subtask.todo-item--editing');
-            if (!subtaskEl) return;
-
-            const textEl = subtaskEl.querySelector('.todo-item__text');
-            textEl.focus();
-
-            if (command === 'createLink') {
-                const url = prompt('Enter the URL:');
-                if (url) {
-                    document.execCommand(command, false, url);
-                }
-            } else if (command === 'code') {
-                const selection = window.getSelection();
-                const range = selection.getRangeAt(0);
-                const code = document.createElement('code');
-                code.textContent = range.toString();
-                range.deleteContents();
-                range.insertNode(code);
-            } else {
-                document.execCommand(command, false, null);
-            }
-
-            button.classList.toggle('active', document.queryCommandState(command));
-            textEl.focus();
-        });
     }
 
     handleAddSubtask(todoId, todoElement) {
@@ -306,16 +239,8 @@ class TodoListRenderer {
             const textEl = lastSubtask.querySelector('.todo-item__text');
             if (!textEl) return;
 
-            lastSubtask.classList.add('todo-item--editing');
             textEl.contentEditable = 'true';
             textEl.focus();
-
-            // Show the WYSIWYG toolbar
-            const toolbar = subtasks.querySelector('.wysiwyg-toolbar');
-            if (toolbar) {
-                toolbar.style.display = 'flex';
-                toolbar.style.top = '-35px';
-            }
 
             // Set up text selection
             const selection = window.getSelection();

@@ -43,6 +43,21 @@ class TodoItem extends Component {
         return this._state;
     }
 
+    createWYSIWYGToolbar() {
+        return `
+            <div class="wysiwyg-toolbar">
+                <button class="wysiwyg-toolbar__button" data-command="bold" title="Bold"><b>B</b></button>
+                <button class="wysiwyg-toolbar__button" data-command="italic" title="Italic"><i>I</i></button>
+                <button class="wysiwyg-toolbar__button" data-command="underline" title="Underline"><u>U</u></button>
+                <div class="wysiwyg-toolbar__separator"></div>
+                <button class="wysiwyg-toolbar__button" data-command="insertUnorderedList" title="Bullet List">•</button>
+                <button class="wysiwyg-toolbar__button" data-command="insertOrderedList" title="Numbered List">1.</button>
+                <div class="wysiwyg-toolbar__separator"></div>
+                <button class="wysiwyg-toolbar__button" data-command="createLink" title="Add Link">🔗</button>
+                <button class="wysiwyg-toolbar__button" data-command="code" title="Code">〈/〉</button>
+            </div>`;
+    }
+
     async setupEventListeners() {
         // Toggle completion
         this.delegate('click', '.todo-checkbox', (e) => {
@@ -98,34 +113,34 @@ class TodoItem extends Component {
         });
 
         // Subtask events
-        this.delegate('click', '.subtask-checkbox', (e, target) => {
-            const subtaskId = target.closest('.subtask').dataset.subtaskId;
+        this.delegate('click', '.todo-item__checkbox', (e, target) => {
+            const subtaskId = target.closest('.todo-item__subtask').dataset.id;
             this.onSubtaskToggle?.(subtaskId);
         });
 
-        this.delegate('click', '[data-action="delete-subtask"]', (e, target) => {
-            const subtaskId = target.closest('.subtask').dataset.subtaskId;
+        this.delegate('click', '.todo-item__action--delete', (e, target) => {
+            const subtaskId = target.closest('.todo-item__subtask').dataset.id;
             this.onSubtaskDelete?.(subtaskId);
         });
 
-        this.delegate('dblclick', '.subtask-text', (e, target) => {
-            const subtaskId = target.closest('.subtask').dataset.subtaskId;
+        this.delegate('click', '.todo-item__action--edit', (e, target) => {
+            const subtaskId = target.closest('.todo-item__subtask').dataset.id;
             this.setState({ editingSubtaskId: subtaskId });
         });
 
-        this.delegate('keydown', '.subtask-edit-input', (e, target) => {
-            const subtaskId = target.closest('.subtask').dataset.subtaskId;
+        this.delegate('keydown', '.todo-item__text[contenteditable="true"]', (e, target) => {
+            const subtaskId = target.closest('.todo-item__subtask').dataset.id;
             if (e.key === 'Enter') {
                 e.preventDefault();
-                this.finishEditingSubtask(subtaskId, target.value);
+                this.finishEditingSubtask(subtaskId, target.textContent);
             } else if (e.key === 'Escape') {
                 this.setState({ editingSubtaskId: null });
             }
         });
 
-        this.delegate('blur', '.subtask-edit-input', (e, target) => {
-            const subtaskId = target.closest('.subtask').dataset.subtaskId;
-            this.finishEditingSubtask(subtaskId, target.value);
+        this.delegate('blur', '.todo-item__text[contenteditable="true"]', (e, target) => {
+            const subtaskId = target.closest('.todo-item__subtask').dataset.id;
+            this.finishEditingSubtask(subtaskId, target.textContent);
         });
 
         // Toggle subtasks
@@ -135,6 +150,39 @@ class TodoItem extends Component {
 
         // Drag and drop
         this.setupDragAndDrop();
+
+        // WYSIWYG toolbar events
+        this.delegate('click', '.wysiwyg-toolbar__button', (e, target) => {
+            e.preventDefault();
+            e.stopPropagation();
+
+            const command = target.dataset.command;
+            if (!command) return;
+
+            const textEl = this.element.querySelector('.todo-item__text[contenteditable="true"]');
+            if (!textEl) return;
+
+            textEl.focus();
+
+            if (command === 'createLink') {
+                const url = prompt('Enter the URL:');
+                if (url) {
+                    document.execCommand(command, false, url);
+                }
+            } else if (command === 'code') {
+                const selection = window.getSelection();
+                const range = selection.getRangeAt(0);
+                const code = document.createElement('code');
+                code.textContent = range.toString();
+                range.deleteContents();
+                range.insertNode(code);
+            } else {
+                document.execCommand(command, false, null);
+            }
+
+            target.classList.toggle('active', document.queryCommandState(command));
+            textEl.focus();
+        });
     }
 
     setupDragAndDrop() {
@@ -223,84 +271,16 @@ class TodoItem extends Component {
         this.element.classList.remove('drop-above', 'drop-below');
     }
 
-    async render() {
-        const { todo, isEditing, showSubtasks, editingSubtaskId } = this.getState();
-        const completedClass = todo.completed ? ' completed' : '';
-        const favoriteClass = todo.favorite ? ' favorite' : '';
-        const editingClass = isEditing ? ' editing' : '';
-        const hasSubtasks = todo.subtasks && todo.subtasks.length > 0;
-        const activeSubtasks = hasSubtasks ? todo.subtasks.filter(s => !s.completed).length : 0;
-
-        this.element.className = `todo-item${completedClass}${favoriteClass}${editingClass}`;
-        this.element.dataset.todoId = todo.id;
-
-        if (isEditing) {
-            this.element.innerHTML = `
-                <div class="drag-handle">⋮⋮</div>
-                <input type="text" class="todo-edit-input" 
-                    value="${todo.text}" 
-                    data-action="edit-todo">
-                <div class="todo-actions">
-                    <button class="btn-favorite" data-action="favorite-todo">
-                        ${todo.favorite ? '★' : '☆'}
-                    </button>
-                    <button class="btn-delete" data-action="delete-todo">×</button>
-                </div>
-            `;
-            this.$('.todo-edit-input').focus();
-        } else {
-            this.element.innerHTML = `
-                <div class="todo-main">
-                    <div class="drag-handle">⋮⋮</div>
-                    <input type="checkbox" class="todo-checkbox" 
-                        ${todo.completed ? 'checked' : ''}>
-                    <span class="todo-text">${todo.text}</span>
-                    ${hasSubtasks ? `
-                        <button class="subtasks-toggle">
-                            ${activeSubtasks} active
-                            <span class="arrow ${showSubtasks ? 'down' : 'right'}"></span>
-                        </button>
-                    ` : ''}
-                    <div class="todo-actions">
-                        <button class="btn-favorite" data-action="favorite-todo">
-                            ${todo.favorite ? '★' : '☆'}
-                        </button>
-                        <button class="btn-add-subtask" data-action="add-subtask" title="Add Subtask">+</button>
-                        <button class="btn-delete" data-action="delete-todo">×</button>
-                    </div>
-                </div>
-                ${hasSubtasks ? `
-                    <div class="subtasks ${showSubtasks ? 'show' : 'hide'}">
-                        ${todo.subtasks.map(subtask => `
-                            <div class="subtask ${subtask.completed ? 'completed' : ''}" 
-                                data-subtask-id="${subtask.id}">
-                                <input type="checkbox" class="subtask-checkbox" 
-                                    ${subtask.completed ? 'checked' : ''}>
-                                ${editingSubtaskId === subtask.id ? `
-                                    <input type="text" class="subtask-edit-input" 
-                                        value="${subtask.text}"
-                                        data-action="edit-subtask">
-                                ` : `
-                                    <span class="subtask-text">${subtask.text}</span>
-                                `}
-                                <button class="btn-delete" data-action="delete-subtask">×</button>
-                            </div>
-                        `).join('')}
-                    </div>
-                ` : ''}
-            `;
-
-            // Focus new subtask input if needed
-            if (editingSubtaskId) {
-                requestAnimationFrame(() => {
-                    const input = this.$(`.subtask[data-subtask-id="${editingSubtaskId}"] .subtask-edit-input`);
-                    if (input) {
-                        input.focus();
-                        input.select();
-                    }
-                });
-            }
-        }
+    render() {
+        return `
+            <div class="todo-item__content">
+                ${this.createCheckbox()}
+                <span class="todo-item__text">${this.todo.text}</span>
+                ${this.createSubtaskIndicator()}
+                ${this.createActions()}
+            </div>
+            ${this.createSubtasks()}
+        `;
     }
 
     removeEventListeners() {

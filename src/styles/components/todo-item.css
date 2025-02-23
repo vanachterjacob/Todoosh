@@ -1,0 +1,106 @@
+.todo-item {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    background: var(--color-background);
+    border-radius: 8px;
+    margin-bottom: 8px;
+    padding: 12px;
+    transition: all 0.2s ease;
+}
+
+.todo-item__content {
+    position: relative;
+    display: flex;
+    align-items: center;
+    min-height: 40px;
+    padding: 8px;
+}
+
+.subtask {
+    display: flex;
+    align-items: center;
+    padding: 8px;
+    margin: 4px 0;
+    border-radius: 4px;
+    background: var(--bg-secondary);
+    position: relative;
+}
+
+.subtask-content {
+    flex: 1;
+    position: relative;
+    margin: 0 8px;
+    min-height: 24px;
+    /* Ensure minimum height for toolbar positioning */
+    padding-top: 40px;
+    /* Make space for the toolbar */
+}
+
+.subtask:not(.editing) .subtask-content {
+    padding-top: 0;
+    /* Remove padding when not editing */
+}
+
+.subtask.editing {
+    background: var(--bg-hover);
+    padding-top: 8px;
+    /* Add some space at the top */
+}
+
+.subtask.editing .todo-item__text {
+    min-height: 24px;
+    padding: 4px 8px;
+    background: var(--bg-input);
+    border-radius: 3px;
+    outline: none;
+    margin-top: 4px;
+    /* Space between toolbar and text */
+}
+
+.subtask.editing .todo-item__text:focus {
+    box-shadow: 0 0 0 2px var(--focus-color);
+}
+
+.todo-item__text {
+    display: block;
+    width: 100%;
+    word-break: break-word;
+    line-height: 1.5;
+    min-height: 24px;
+}
+
+/* Style for rich text content */
+.todo-item__text b {
+    font-weight: bold;
+}
+
+.todo-item__text i {
+    font-style: italic;
+}
+
+.todo-item__text u {
+    text-decoration: underline;
+}
+
+.todo-item__text code {
+    background: var(--code-bg);
+    padding: 2px 4px;
+    border-radius: 3px;
+    font-family: monospace;
+}
+
+.todo-item__text ul {
+    list-style-type: disc;
+    padding-left: 20px;
+}
+
+.todo-item__text ol {
+    list-style-type: decimal;
+    padding-left: 20px;
+}
+
+.todo-item__text a {
+    color: var(--link-color);
+    text-decoration: underline;
+}

@@ -230,71 +230,6 @@
     overflow: hidden;
 }
 
-.todo-item__subtasks .wysiwyg-toolbar {
-    position: absolute;
-    top: 0;
-    left: 24px;
-    z-index: 100;
-    display: none;
-    background: var(--color-background);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-sm);
-    padding: var(--spacing-xs);
-    box-shadow: var(--shadow-md);
-    gap: var(--spacing-xs);
-}
-
-.todo-item__subtask.todo-item--editing~.wysiwyg-toolbar {
-    display: flex !important;
-    top: -35px;
-}
-
-/* Hide toolbar for main todo items */
-.todo-item>.todo-item__content .wysiwyg-toolbar {
-    display: none !important;
-}
-
-/* Override any global toolbar styles */
-.wysiwyg-toolbar {
-    display: none;
-}
-
-.todo-item--editing .wysiwyg-toolbar {
-    display: none;
-}
-
-/* Toolbar button styles */
-.wysiwyg-toolbar__button {
-    padding: var(--spacing-xs);
-    border: none;
-    background: none;
-    color: var(--color-text);
-    cursor: pointer;
-    border-radius: var(--radius-xs);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 24px;
-    height: 24px;
-    transition: all var(--transition-quick);
-}
-
-.wysiwyg-toolbar__button:hover {
-    background: var(--color-background-light);
-}
-
-.wysiwyg-toolbar__button.active {
-    background: var(--color-primary);
-    color: white;
-}
-
-.wysiwyg-toolbar__separator {
-    width: 1px;
-    height: 20px;
-    background: var(--color-border);
-    margin: 0 var(--spacing-xs);
-}
-
 /* Completed states */
 .todo-item--completed .todo-item__text,
 .todo-item--completed .todo-item__subtask .todo-item__text {
@@ -671,26 +606,9 @@
     color: var(--color-text-light);
 }
 
-.wysiwyg-toolbar {
-    display: none;
-}
-
-.todo-item--editing .wysiwyg-toolbar {
-    display: none;
-}
-
 /* Ensure proper positioning for the toolbar */
 .todo-item__subtasks {
     position: relative;
-}
-
-/* Override any other toolbar display rules */
-.wysiwyg-toolbar {
-    display: none;
-}
-
-.todo-item--editing .wysiwyg-toolbar {
-    display: none;
 }
 
 /* Rich text content styles */
