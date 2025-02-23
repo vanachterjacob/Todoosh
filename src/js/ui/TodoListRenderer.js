@@ -1,7 +1,11 @@
 // TodoList Renderer Component
 class TodoListRenderer {
-    constructor(todoApp) {
-        this.app = todoApp;
+    constructor(app) {
+        this.app = app;
+        this.todoList = document.getElementById('todoList');
+        this.todoInput = document.getElementById('todoInput');
+        this.clearCompletedBtn = document.getElementById('clearCompleted');
+        this.filterButtons = document.querySelectorAll('.filter-btn');
     }
 
     renderTodos() {
@@ -195,8 +199,24 @@ class TodoListRenderer {
         subtasksContainer.addEventListener('click', (e) => {
             if (e.target.matches('.todo-item__action--edit')) {
                 const subtaskEl = e.target.closest('.todo-item__subtask');
-                if (subtaskEl) {
-                    this.app.startSubtaskEditing(subtaskEl);
+                const todoEl = subtaskEl?.closest('.todo-item');
+                if (subtaskEl && todoEl) {
+                    const todoId = todoEl.dataset.id;
+                    const subtaskId = subtaskEl.dataset.id;
+                    console.log('Editing subtask:', { todoId, subtaskId });
+                    const todoItem = this.app.todoContainer.getTodoItem(todoId);
+                    if (todoItem) {
+                        try {
+                            todoItem.setState({ editingSubtaskId: subtaskId });
+                        } catch (error) {
+                            console.error('Failed to set subtask editing state:', error);
+                            const textEl = subtaskEl.querySelector('.todo-item__text');
+                            if (textEl) {
+                                textEl.contentEditable = 'true';
+                                textEl.focus();
+                            }
+                        }
+                    }
                 }
             }
         });

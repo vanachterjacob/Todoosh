@@ -9,15 +9,19 @@ class TodoApp {
         // First, set up DOM elements
         this.setupDOMElements();
 
-        // Initialize renderers
-        this.todoListRenderer = new TodoListRenderer(this);
-        this.listRenderer = new ListRenderer(this);
-
-        // Then initialize services
+        // Then initialize services first since components need them
         this.storageService = new StorageService();
         this.firebaseService = new FirebaseService();
         this.dragDropService = new DragDropService();
         this.themeToggle = new ThemeToggle();
+
+        // Initialize components with required dependencies
+        this.todoContainer = new TodoContainer(document.getElementById('todoList'), {
+            storageService: this.storageService,
+            app: this
+        });
+        this.todoListRenderer = new TodoListRenderer(this);
+        this.listRenderer = new ListRenderer(this);
 
         // Setup services after DOM elements are available
         this.setupServices();
@@ -301,6 +305,8 @@ class TodoApp {
     }
 
     updateUI() {
+        const currentList = this.lists.find(list => list.id === this.currentListId);
+        this.todoContainer.setList(currentList);
         this.listRenderer.renderLists();
         this.todoListRenderer.renderTodos();
         this.updateTodoCount();
@@ -338,7 +344,13 @@ class TodoApp {
     }
 
     startSubtaskEditing(subtaskEl) {
-        this.todoListRenderer.startSubtaskEditing(subtaskEl);
+        const todoEl = subtaskEl.closest('.todo-item');
+        const todoId = todoEl.dataset.todoId;
+        const subtaskId = subtaskEl.dataset.subtaskId;
+        const todoItem = this.todoContainer.getTodoItem(todoId);
+        if (todoItem) {
+            todoItem.setState({ editingSubtaskId: subtaskId });
+        }
     }
 }
 

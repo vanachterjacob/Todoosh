@@ -122,12 +122,13 @@ class TodoContainer extends Component {
                     onSubtaskAdd: subtask => this.handleSubtaskAdd(todo, subtask),
                     onSubtaskDelete: subtaskId => this.handleSubtaskDelete(todo, subtaskId),
                     onSubtaskToggle: subtaskId => this.handleSubtaskToggle(todo, subtaskId),
-                    onSubtaskEdit: (subtaskId, newText) => this.handleSubtaskEdit(todo, subtaskId, newText)
+                    onSubtaskEdit: (subtaskId, newText) => this.handleSubtaskEdit(todo, subtaskId, newText),
+                    app: this.app
                 });
                 this._todoItems.set(todo.id, todoItem);
                 todoItem.init();
             } else {
-                todoItem.setState({ todo, index });
+                todoItem.update({ todo, index });
             }
         });
     }
@@ -231,23 +232,22 @@ class TodoContainer extends Component {
 
     async handleClearCompleted() {
         try {
-            const completedTodos = this.list.todos.filter(t => t.completed);
-            for (const todo of completedTodos) {
-                this.list.removeTodo(todo.id);
-            }
-            await this.storageService.updateList(this.list);
-            this.emit(Constants.EVENTS.TODO_DELETED, completedTodos);
+            const completedTodos = this._state.todos.filter(todo => todo.completed);
+            await Promise.all(completedTodos.map(todo => this.handleTodoDelete(todo)));
         } catch (error) {
             console.error('Error clearing completed todos:', error);
         }
     }
 
+    getTodoItem(todoId) {
+        return this._todoItems.get(todoId);
+    }
+
     async cleanup() {
-        // Cleanup all todo items
-        for (const component of this._todoItems.values()) {
-            component.destroy();
-        }
+        // Cleanup event listeners and references
+        this._todoItems.forEach(item => item.cleanup());
         this._todoItems.clear();
+        await super.cleanup();
     }
 }
 

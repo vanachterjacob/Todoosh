@@ -30,6 +30,19 @@ class TodoItem extends Component {
         };
     }
 
+    update(newState) {
+        Object.assign(this._state, newState);
+        this.render();
+    }
+
+    setState(newState) {
+        this.update(newState);
+    }
+
+    getState() {
+        return this._state;
+    }
+
     async setupEventListeners() {
         // Toggle completion
         this.delegate('click', '.todo-checkbox', (e) => {
